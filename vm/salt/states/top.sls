@@ -2,3 +2,4 @@ base:
   '*':
     - fish
     - sshkey
+    - time
