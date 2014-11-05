@@ -1,2 +1,15 @@
 syntax: glob
-vm/.vagrant/*
+
+.vagrant/
+other/
+.idea/workspace.xml
+
+# kernel module
+.tmp_versions/
+Module.symvers
+modules.order
+*.mod.c
+*.o.cmd
+*.ko.cmd
+*.o
+*.ko

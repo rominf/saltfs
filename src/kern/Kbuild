@@ -1,0 +1,2 @@
+obj-m := saltfs.o
+saltfs-objs := super.o
