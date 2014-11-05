@@ -1,7 +1,9 @@
 syntax: glob
 
 .vagrant/
+bin/
 other/
+
 .idea/workspace.xml
 
 # kernel module

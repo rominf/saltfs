@@ -1,2 +1,5 @@
 obj-m := saltfs.o
 saltfs-objs := super.o
+
+CFLAGS_super.o := -DDEBUG
+#CFLAGS_inode.o := -DDEBUG

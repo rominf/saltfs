@@ -7,14 +7,14 @@ set(module_name saltfs.ko)
 set(module_path /lib/modules/${os_release})
 set(module_build_path ${module_path}/build)
 set(module_source_dir ${CMAKE_CURRENT_LIST_DIR})
-set(module_bin_dir ${PROJECT_SOURCE_DIR}/bin/)
+set(module_headers defines.h super.h)
+set(module_bin ${module_source_dir}/${module_name})
 
-ADD_CUSTOM_COMMAND(OUTPUT ${module_name}
+ADD_CUSTOM_COMMAND(OUTPUT ${module_bin}
                    COMMAND make -C ${module_build_path} M=`pwd` modules
-                   COMMAND cp -f ${module_name} ${module_bin_dir}/${module_name}
                    WORKING_DIRECTORY ${module_source_dir}
-                   DEPENDS super.c Kbuild
+                   DEPENDS super.c ${module_headers} Kbuild
                    COMMENT "Building saltfs.ko"
                   )
 
-ADD_CUSTOM_TARGET(saltfs ALL DEPENDS ${module_name})
+ADD_CUSTOM_TARGET(saltfs ALL DEPENDS ${module_bin})
