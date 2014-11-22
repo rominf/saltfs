@@ -1,7 +1,8 @@
-{% if not salt['pkg.version']('fish') %}
-'zypper addrepo http://download.opensuse.org/repositories/shells/openSUSE_13.1/shells.repo; zypper --gpg-auto-import-keys ref -r shells':
-  cmd.run
-{% endif %}
+shells:
+  pkgrepo.managed:
+    - url: http://download.opensuse.org/repositories/shells/openSUSE_13.2/
+    - autorefresh: True
+    - gpgcheck: False
 
 fish:
   pkg.installed

@@ -3,25 +3,43 @@
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
+MASTER_IP = "192.168.0.2"
+SALT_ROOT = "/srv/salt"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box = "berendt/opensuse-13.1-x86_64"
+  config.vm.box = "berendt/opensuse-13.2-x86_64"
 
-  config.vm.synced_folder "salt/states", "/srv/salt"
-
-  config.vm.provision :shell, inline: '
-#	  echo "export TERM=vt100" > /etc/profile.d/term.sh
-	  sed -i "s/#file_client.*/file_client: local/g" /etc/salt/minion
-  '
-
-  config.vm.provision :salt do |salt|
-	  salt.run_highstate = true
-  end
+  config.vm.synced_folder "../bin", "/module"
+  config.vm.synced_folder "salt/states", SALT_ROOT
 
   config.ssh.username = 'root'
   config.ssh.insert_key = 'true'
   config.ssh.private_key_path = '~/.ssh/id_rsa'
 
+#  config.ssh.password = 'root'
+
+  # config.vm.network "private_network", type: "dhcp"
+  config.vm.network "private_network", ip: MASTER_IP
+
+  config.vm.provision :shell, inline: '
+#	  echo "export TERM=vt100" > /etc/profile.d/term.sh
+#	  sed -i "s/#file_client.*/file_client: local/g" /etc/salt/minion
+  '
+
+  config.vm.provision :salt do |salt|
+#	  salt.run_highstate = true
+	  salt.minion_key = "salt/key/minion.pem"
+	  salt.minion_pub = "salt/key/minion.pub"
+	  salt.master_key = "salt/key/master.pem"
+	  salt.master_pub = "salt/key/master.pub"
+	  salt.bootstrap_options = " -A " + MASTER_IP + " -i " + "minion"
+	  salt.install_master = true
+	  salt.seed_master = {minion: salt.minion_pub}
+      salt.bootstrap_script = "salt/bootstrap.sh"
+	  salt.verbose = true
+  end
+  config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: SALT_ROOT + "/sshkey/host_id_rsa.pub"
+  config.vm.provision "shell", inline: "sudo salt-call state.highstate"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -50,7 +68,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "../bin", "/module"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
