@@ -10,52 +10,6 @@
 #include "super.h"
 /* #include "inode.h" */
 
-//static struct saltfs_super_block *saltfs_super_block_read(struct super_block *sb)
-//{
-//	struct saltfs_super_block *result = (struct saltfs_super_block *)
-//			kzalloc(sizeof(struct saltfs_super_block),
-//					GFP_NOFS);
-//	struct saltfs_disk_super_block *dsb = NULL;
-//	struct buffer_head *bh = NULL;
-//
-//	if (!result) {
-//		pr_err("saltfs cannot allocate super block\n");
-//		return NULL;
-//	}
-//
-//	bh = sb_bread(sb, 0);
-//	if (!bh) {
-//		pr_err("cannot read 0 block\n");
-//		goto free_memory;
-//	}
-//
-//	dsb = (struct saltfs_disk_super_block *)bh->b_data;
-//	saltfs_super_block_fill(result, dsb);
-//	brelse(bh);
-//
-//	if (result->asb_magic != AUFS_MAGIC) {
-//		pr_err("wrong magic number %u\n", (unsigned) result->asb_magic);
-//		goto free_memory;
-//	}
-//
-//	pr_debug("saltfs super block info:\n"
-//					"\tmagic           = %u\n"
-//					"\tinode blocks    = %u\n"
-//					"\tblock size      = %u\n"
-//					"\troot inode      = %u\n"
-//					"\tinodes in block = %u\n",
-//			(unsigned) result->asb_magic,
-//			(unsigned) result->asb_inode_blocks,
-//			(unsigned) result->asb_block_size,
-//			(unsigned) result->asb_root_inode,
-//			(unsigned) result->asb_inodes_in_block);
-//
-//	return result;
-//
-//	free_memory:
-//	kfree(result);
-//	return NULL;
-//}
 
 static void saltfs_put_super(struct super_block *sb)
 {
@@ -92,8 +46,7 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 static struct dentry *saltfs_mount(struct file_system_type *type, int flags,
 		char const *dev, void *data)
 {
-	struct dentry *const entry = mount_bdev(type, flags, dev,
-			data, saltfs_fill_sb);
+	struct dentry *const entry = mount_nodev(type, flags, data, saltfs_fill_sb);
 	if (IS_ERR(entry))
 		pr_err("saltfs mounting failed\n");
 	else
@@ -106,12 +59,20 @@ static struct file_system_type saltfs_type = {
 		.name = NAME,
 		.mount = saltfs_mount,
 		.kill_sb = kill_block_super,
-		.fs_flags = FS_REQUIRES_DEV
+//		.fs_flags = FS_REQUIRES_DEV
 };
 
 static int __init saltfs_init(void)
 {
-	int ret = register_filesystem(&saltfs_type);
+	static unsigned long once;
+	int ret;
+
+	if (test_and_set_bit(0, &once)) {
+		pr_err("saltfs is already mounted, refusing to mount it second time\n");
+		return 0;
+	}
+
+	ret = register_filesystem(&saltfs_type);
 	if (ret != 0) {
 //		saltfs_inode_cache_destroy();
 		pr_err("cannot register filesystem\n");
