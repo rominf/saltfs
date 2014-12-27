@@ -1,9 +1,19 @@
 #!/usr/bin/env fish
 
-if contains force $argv
-	set rmmod_args -- '--force'
-end
+# if contains force $argv
+# 	set rmmod_args -- '--force'
+# end
 
-cp -f ../src/kern/saltfs.ko ../bin/
-vagrant ssh -c "rmmod --force saltfs; insmod /module/saltfs.ko"
+set root "../"
+
+cp -f $root/src/kern/saltfs.ko $root/bin/
+
+set cmd "fish -c 'sleep 0"
+contains umount $argv; and set cmd "$cmd; and umount /salt"
+contains rmmod  $argv; and set cmd "$cmd; and rmmod --force saltfs"
+contains insmod $argv; and set cmd "$cmd; and insmod /module/saltfs.ko"
+contains mount  $argv; and set cmd "$cmd; and mount -t saltfs saltfs /salt"
+set cmd "$cmd'"
+vagrant ssh -c $cmd
+
 #vagrant ssh -c "rmmod $rmmod_arg saltfs; insmod /module/saltfs.ko"
