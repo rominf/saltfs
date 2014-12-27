@@ -9,8 +9,8 @@ set root "../"
 cp -f $root/src/kern/saltfs.ko $root/bin/
 
 set cmd "fish -c 'sleep 0"
-contains umount $argv; and set cmd "$cmd; and umount /salt"
-contains rmmod  $argv; and set cmd "$cmd; and rmmod --force saltfs"
+contains umount $argv; and set cmd "$cmd; and umount /salt; true"
+contains rmmod  $argv; and set cmd "$cmd; and rmmod --force saltfs; true"
 contains insmod $argv; and set cmd "$cmd; and insmod /module/saltfs.ko"
 contains mount  $argv; and set cmd "$cmd; and mount -t saltfs saltfs /salt"
 set cmd "$cmd'"
