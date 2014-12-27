@@ -4,6 +4,8 @@
 # 	set rmmod_args -- '--force'
 # end
 
+contains up $argv; vagrant up
+
 set root "../"
 
 cp -f $root/src/kern/saltfs.ko $root/bin/
