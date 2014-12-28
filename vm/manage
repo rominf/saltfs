@@ -4,7 +4,7 @@
 # 	set rmmod_args -- '--force'
 # end
 
-contains up $argv; vagrant up
+contains up $argv; and vagrant up
 
 set root "../"
 
