@@ -4,6 +4,8 @@ syntax: glob
 bin/
 other/
 
+*bib~*
+
 .idea/workspace.xml
 
 # kernel module
