@@ -8,8 +8,14 @@
 set root "../"
 set cmd "fish -c 'sleep 0"
 
-contains up     $argv; and vagrant up
+function show_help
+	echo -e "Usage:\n  ./manage copy up umount rmmod insmod mount"
+	exit 0
+end
+
+contains help $argv; or contains -- '--help' $argv; or contains -- '-h' $argv; and show_help
 contains copy   $argv; cp -f $root/src/kern/saltfs.ko $root/bin/
+contains up     $argv; and vagrant up
 contains umount $argv; and set cmd "$cmd; and umount /salt; true"
 contains rmmod  $argv; and set cmd "$cmd; and rmmod --force saltfs; true"
 contains insmod $argv; and set cmd "$cmd; and insmod /module/saltfs.ko"
