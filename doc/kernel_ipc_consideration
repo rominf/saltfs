@@ -1,0 +1,19 @@
+http://people.ee.ethz.ch/~arkeller/linux/kernel_user_space_howto.html
+
+2.2. Старый способ, ругают за хлам в /proc/, неудобное чтение по байтам.
+2.3.
++ Хорошее структурирование
+- Фиксированный размер (In addition each file has a maximum size of PAGE_SIZE (== 4096 on i386) bytes. 
+2.4.
+См. 2.3
+2.5.
+- Выпилен в обычной сборке ядра.
+2.6.
+- configure kernel parameters at run time
+- только числа
+2.7.
+- In contrast to most file system based approaches seen so far, the user has to create the device file explicitly 
+- Кривые названия: /dev/что-тоN
+3.
+- Сложность использования.
+- Необходимо писать специальное приложение в userspace.
