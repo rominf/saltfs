@@ -20,8 +20,6 @@
 #include <linux/time.h>
 #include <linux/types.h>
 
-
-
 DEFINE_SPINLOCK(salt_subdir_lock);
 
 //#define SALT_OUTPUT_DIR /tmp/
@@ -30,33 +28,30 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 //#define SALT_OUTPUT_FILE(WHAT) (SALT_OUTPUT_DIR ## WHAT)
 //#define SALT_OUTPUT_MINIONS_FILE SALT_OUTPUT_DIR ## minions
 
-//static int proc_pid_instantiate(struct inode *dir,
-//				   struct dentry * dentry,
-//				   struct task_struct *task, const void *ptr)
-//{
-//	struct inode *inode;
-//
-//	inode = proc_pid_make_inode(dir->i_sb, task);
-//	if (!inode)
-//		goto out;
-//
-//	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
-//	inode->i_op = &proc_tgid_base_inode_operations;
-//	inode->i_fop = &proc_tgid_base_operations;
-//	inode->i_flags|=S_IMMUTABLE;
-//
-//	set_nlink(inode, 2 + pid_entry_count_dirs(tgid_base_stuff,
-//						  ARRAY_SIZE(tgid_base_stuff)));
-//
-//	d_set_d_op(dentry, &pid_dentry_operations);
-//
-//	d_add(dentry, inode);
-//	/* Close the race of the process dying before we return the dentry */
-//	if (pid_revalidate(dentry, 0))
-//		return 0;
-//out:
+static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry)
+{
+	struct inode *inode;
+	struct salt_inode *ei;
+
+	inode = new_inode(dir->i_sb);
+
+	pr_debug("saltfs: new inode created\n");
+
+	if (!inode)
+		goto out;
+
+	ei = SALT_I(inode);
+	inode->i_ino = get_next_ino();
+	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
+	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+	inode->i_flags |= S_IMMUTABLE;
+
+	pr_debug("saltfs: new inode filled\n");
+
+out:
+	return inode;
 //	return -ENOENT;
-//}
+}
 
 bool salt_fill_cache_minion(struct file *file, struct dir_context *ctx,
 	const char *name, int len)
@@ -69,13 +64,17 @@ bool salt_fill_cache_minion(struct file *file, struct dir_context *ctx,
 
 	pr_debug("saltfs: salt_fill_cache_minion: variables inited\n");
 
+	inode = salt_create_inode(dir->d_inode, dir);
+
 	child = d_hash_and_lookup(dir, &qname);
 	if (!child) {
 		child = d_alloc(dir, &qname);
 		pr_debug("saltfs: salt_fill_cache_minion: allocated child\n");
+		d_add(child, inode);
+		pr_debug("saltfs: new dentry cached\n");
 	}
 	pr_debug("saltfs: salt_fill_cache_minion: trying to init inode and etc.\n");
-	inode = child->d_inode;
+//	inode = child->d_inode;
 	pr_debug("saltfs: salt_fill_cache_minion: inited inode %p\n", inode);
 	ino = inode->i_ino;
 	type = inode->i_mode >> 12;
