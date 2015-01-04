@@ -12,7 +12,7 @@ set(module_name saltfs.ko)
 set(module_path /lib/modules/${os_release})
 set(module_build_path ${module_path}/build)
 set(module_source_dir ${CMAKE_CURRENT_LIST_DIR})
-set(module_headers defines.h super.h)
+set(module_headers internal.h super.h)
 set(module_bin ${module_source_dir}/${module_name})
 
 add_custom_command(OUTPUT ${module_bin}

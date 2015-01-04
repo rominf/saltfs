@@ -1,14 +1,15 @@
-#include "defines.h"
+#include "dir.h"
+#include "internal.h"
+#include "inode.h"
+#include "saltfs.h"
+#include "super.h"
+#include "user.h"
 
 #include <linux/buffer_head.h>
 #include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/slab.h>
-
-#include "saltfs.h"
-#include "super.h"
-/* #include "inode.h" */
 
 //static const struct address_space_operations saltfs_aops = {
 //		.readpage       = simple_readpage,
@@ -52,28 +53,36 @@
 //}
 
 
-static void saltfs_put_super(struct super_block *sb)
+static void salt_put_super(struct super_block *sb)
 {
 	pr_debug("saltfs: super block destroyed\n");
 }
 
-static struct super_operations const saltfs_super_ops = {
-		.put_super = saltfs_put_super,
+static struct super_operations const salt_super_ops = {
+		.alloc_inode = salt_alloc_inode,
+		.put_super   = salt_put_super,
 };
 
 static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
 
+
+	sb->s_flags |= MS_NODIRATIME | MS_NOSUID | MS_NOEXEC;
+	sb->s_blocksize = 1024;
+	sb->s_blocksize_bits = 10;
+	sb->s_time_gran = 1;
 	sb->s_magic = SALTFS_MAGIC;
-	sb->s_op = &saltfs_super_ops;
+	sb->s_op = &salt_super_ops;
 
 	root = new_inode(sb);
 
-	root->i_ino = 0;
+	root->i_ino = SALT_ROOT_INO;
 	root->i_sb = sb;
 	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
-	inode_init_owner(root, NULL, S_IFDIR);
+	root->i_op = &simple_dir_inode_operations;
+	root->i_fop = &salt_dir_operations;
+	inode_init_owner(root, NULL, S_IFDIR | 0770);
 
 	sb->s_root = d_make_root(root);
 	if (!sb->s_root) {
@@ -127,6 +136,11 @@ static int __init saltfs_init(void)
 		return ret;
 	}
 
+	pr_debug("saltfs: filesystem registered\n");
+
+	init_proc();
+	salt_init_inodecache();
+
 	pr_debug("saltfs: module loaded\n");
 
 	return 0;
@@ -139,8 +153,12 @@ static void __exit saltfs_shutdown(void)
 	ret = unregister_filesystem(&saltfs_type);
 	if (ret != 0)
 		pr_err("saltfs: cannot unregister filesystem\n");
+
+	pr_debug("saltfs: filesystem unregistered\n");
 //
 //	saltfs_inode_cache_destroy();
+
+	shutdown_proc();
 
 	pr_debug("saltfs: module unloaded\n");
 }

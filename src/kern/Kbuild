@@ -1,5 +1,9 @@
 obj-m := saltfs.o
-saltfs-objs := super.o
+saltfs-objs := dir.o inode.o super.o user.o
 
-CFLAGS_super.o := -DDEBUG
+ccflags-y += -DDEBUG
+
+#CFLAGS := -DDEBUG  ## don't work
+#CFLAGS_saltfs-objs := -DDEBUG ## don't work
+#CFLAGS_super.o := -DDEBUG
 #CFLAGS_inode.o := -DDEBUG
