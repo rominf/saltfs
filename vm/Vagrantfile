@@ -13,10 +13,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.synced_folder "salt/states", SALT_ROOT
 
   config.ssh.username = 'root'
-  config.ssh.insert_key = 'true'
-  config.ssh.private_key_path = '~/.ssh/id_rsa'
-
 #  config.ssh.password = 'root'
+  config.ssh.private_key_path = '~/.ssh/id_rsa'
+  config.ssh.insert_key = 'true'
 
   # config.vm.network "private_network", type: "dhcp"
   config.vm.network "private_network", ip: MASTER_IP
