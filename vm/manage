@@ -10,19 +10,21 @@ set src "$root/src/kern/"
 set cmd "fish -c 'sleep 0"
 
 function show_help
-	echo -e "Usage:\n  ./manage copy up umount rmmod insmod mount ls clean"
+	echo -e "Usage:\n  ./manage build copy clean up umount rmmod insmod mount ls"
 	exit 0
 end
-
 contains help $argv; or contains -- '--help' $argv; or contains -- '-h' $argv; and show_help
-contains copy   $argv; cp -f $src/saltfs.ko $root/bin/
+
+#contains build  $argv; and set tmpbin /tmp/saltfs; mkdir -p $tmpbin; and cmake --build $tmpbin --target saltfs; and cp -f $tmpbin/saltfs.ko $src/saltfs.ko
+contains build  $argv; and /opt/clion/bin/cmake/bin/cmake --build /home/romas/.clion10/system/cmake/generated/e206224e/e206224e/Debug --target saltfs
+contains copy   $argv; and cp -f $src/saltfs.ko $root/bin/
+contains clean  $argv; and cd $src; and ./clean.fish; and cd -
 contains up     $argv; and vagrant up
 contains umount $argv; and set cmd "$cmd; and umount /salt; true"
 contains rmmod  $argv; and set cmd "$cmd; and rmmod --force saltfs; true"
 contains insmod $argv; and set cmd "$cmd; and insmod /module/saltfs.ko"
 contains mount  $argv; and set cmd "$cmd; and mount -t saltfs saltfs /salt"
 contains ls     $argv; and set cmd "$cmd; and ls /salt/"
-contains clean  $argv; and cd $src; and ./clean.fish; and cd -
 
 set cmd "$cmd'"
 
