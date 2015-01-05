@@ -1,0 +1,25 @@
+#!/usr/bin/env fish
+
+if contains ssh $argv
+	while not vagrant ssh
+		sleep 2
+	end
+end
+
+if contains fix $argv
+	set max_try 3
+	for i in (seq $max_try)
+		if vagrant status | grep -q 'running'
+			break
+		end
+
+		echo "Trying to fix vm, try #$i"
+
+		vagrant halt --force
+		rm -rf .vagrant/
+		uncpbak .vagrant.20150103_213121.bak/
+		vagrant up
+	end
+
+	echo "It seems vm is fixed"
+end
