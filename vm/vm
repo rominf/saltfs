@@ -1,15 +1,27 @@
 #!/usr/bin/env fish
 
-if contains ssh $argv
+function vm_ssh
+	function wait_ctrl_l
+		sh -c 'sleep 2; xdotool key control+L' &
+	end
+	wait_ctrl_l
 	while not vagrant ssh
-		sleep 2
+		sleep 1
 	end
 end
 
-if contains fix $argv
+function vm_check_running
+	vagrant status | grep -q 'running'
+end
+
+function vm_check_not_created
+	vagrant status | grep -q 'not created'
+end
+
+function vm_fix
 	set max_try 3
 	for i in (seq $max_try)
-		if vagrant status | grep -q 'running'
+		if not vm_check_not_created
 			break
 		end
 
@@ -21,5 +33,20 @@ if contains fix $argv
 		vagrant up
 	end
 
+	while not vagrant ssh -c 'ls /module/saltfs.ko'
+		vagrant reload
+	end
+
 	echo "It seems vm is fixed"
 end
+
+function vm_reload
+	vagrant halt $argv
+	vm_fix
+end
+
+[ (count $argv) -gt 1 ]; and set vm_argv $argv[2..-1]
+
+contains fix $argv; or vm_check_not_created; and vm_fix
+contains ssh $argv;                          and vm_ssh
+contains reload $argv;                       and vm_reload $vm_argv
