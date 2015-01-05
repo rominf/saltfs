@@ -38,6 +38,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  salt.verbose = true
   end
   config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: SALT_ROOT + "/sshkey/host_id_rsa.pub"
+  config.vm.provision "file", source: "../src/user/salt_common.fish", destination: "/usr/share/fish/completions/salt_common.fish"
   config.vm.provision "shell", inline: "sudo salt-call state.highstate"
 
   # Disable automatic box update checking. If you disable this, then

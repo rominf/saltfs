@@ -62,7 +62,7 @@ bool salt_fill_cache_minion(struct file *file, struct dir_context *ctx,
 	unsigned type;
 	ino_t ino;
 
-	pr_debug("saltfs: salt_fill_cache_minion: variables inited\n");
+	pr_debug("saltfs: salt_fill_cache_minion: name='%s'; variables inited\n", name);
 
 	inode = salt_create_inode(dir->d_inode, dir);
 
@@ -83,14 +83,17 @@ bool salt_fill_cache_minion(struct file *file, struct dir_context *ctx,
 
 	pr_debug("saltfs: salt_fill_cache_minion: before dir_emit\n");
 
-	return dir_emit(ctx, name, len, ino, type);
+	return 0;
+//	return dir_emit(ctx, name, len, ino, type);
 }
 
 int salt_readdir_de(/*struct salt_dir_entry *de, */struct file *file, struct dir_context *ctx)
 {
 	int i;
 	char *minion;
+	static bool emited = false;
 
+	pr_debug("saltfs: salt_readdir_de: called with dir '%s'", file->f_path.dentry->d_name.name);
 	if (!dir_emit_dots(file, ctx))
 		return 0;
 
@@ -98,14 +101,23 @@ int salt_readdir_de(/*struct salt_dir_entry *de, */struct file *file, struct dir
 //	dir_emit(ctx, "test", 4, SALT_ROOT_INO + 1, 0);
 //	ctx->pos++;
 
+//	if (emited)
+//		return 0;
+//	else
+//		emited = true;
+
 	prepare_minion_list();
 	for (i = 0; i < salt_output.line_count; i++) {
 		minion = salt_output.lines[i];
-		salt_fill_cache_minion(file, ctx++, minion, strlen(minion));
+		pr_debug("saltfs: caching minion '%s'\n", minion);
+//		ctx->pos++;
+		salt_fill_cache_minion(file, ctx, minion, strlen(minion));
+		pr_debug("saltfs: cached minion '%s'\n", minion);
 	}
+	dcache_readdir(file, ctx);
 
 //	spin_unlock(&salt_subdir_lock);
-	return 1;
+	return 0;
 
 //	spin_lock(&saltfs_subdir_lock_subdir_lock);
 //	de = de->subdir;

@@ -26,9 +26,18 @@ struct salt_userspace_output salt_output = {
 int prepare_minion_list(void)
 {
 	char *argv[] = {
-			"/bin/sh",
+//			"/usr/bin/env",
+//			"fish",
+//			"/bin/sh",
+			"/usr/bin/fish",
 			"-c",
-			"echo -e '1\n2\n3' > " SALT_OUTPUT_FILE,
+			/* No commas! */
+//			"echo -e '1\n2\n3'"
+			"complete --do-complete='salt_common --' >/dev/null; and "
+			"__fish_salt_list_minion accepted"
+					" >"
+					SALT_OUTPUT_FILE,
+//					"/tmp/saltfs",
 			NULL
 	};
 	static char *envp[] = {
