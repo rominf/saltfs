@@ -32,3 +32,4 @@ make:
 /root/.config/fish/config.fish:
   file.managed:
     - source: salt://config.fish
+    - makedirs: True

@@ -25,11 +25,11 @@ function vm_fix
 
 		vagrant halt --force
 		rm -rf .vagrant/
-		uncpbak .vagrant.20150103_213121.bak/
+		uncpbak .vagrant.20150106_204039.bak/
 		vagrant up
 	end
 
-	while not vagrant ssh -c 'ls /module/saltfs.ko'
+	while not vagrant ssh -c 'ls /module/saltfs.ko >/dev/null'
 		vagrant reload
 	end
 

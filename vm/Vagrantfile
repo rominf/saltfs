@@ -6,16 +6,25 @@ VAGRANTFILE_API_VERSION = "2"
 MASTER_IP = "192.168.0.2"
 SALT_ROOT = "/srv/salt"
 
+# 1. Comment all config.vm lines
+# 2. vagrant up
+# 3. vagrant halt
+# 4. Uncomment ssh.username
+# 5. vagrant up --provision
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "berendt/opensuse-13.2-x86_64"
 
+  # config.vm.synced_folder ".", "/vagrant"
   config.vm.synced_folder "../bin", "/module"
   config.vm.synced_folder "salt/states", SALT_ROOT
 
   config.ssh.username = 'root'
 #  config.ssh.password = 'root'
-  config.ssh.private_key_path = '~/.ssh/id_rsa'
-  config.ssh.insert_key = 'true'
+#  config.ssh.private_key_path = '~/.ssh/id_rsa'
+#  config.ssh.insert_key = 'true'
+#  config.ssh.insert_key = 'false'
+  # config.ssh.pty = 'true'
 
   # config.vm.network "private_network", type: "dhcp"
   config.vm.network "private_network", ip: MASTER_IP
@@ -23,6 +32,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :shell, inline: '
 #	  echo "export TERM=vt100" > /etc/profile.d/term.sh
 #	  sed -i "s/#file_client.*/file_client: local/g" /etc/salt/minion
+	  sudo rsync -a /home/vagrant/.ssh/ /root/.ssh
+	  sudo chown root -R /root/.ssh
   '
 
   config.vm.provision :salt do |salt|

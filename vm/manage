@@ -3,6 +3,7 @@
 set root "../"
 set src "$root/src/kern/"
 set cmd "fish -c 'sleep 0"
+set salt_root "/salt"
 
 function show_help
 	echo -e "Usage:\n  ./manage build copy clean up umount rmmod insmod mount ls"
@@ -14,11 +15,12 @@ contains build  $argv; and /opt/clion/bin/cmake/bin/cmake --build /home/romas/.c
 contains copy   $argv; and cp -f $src/saltfs.ko $root/bin/
 contains clean  $argv; and cd $src; and ./clean.fish; and cd -
 contains up     $argv; and vagrant up
-contains umount $argv; and set cmd "$cmd; and umount /salt; true"
+# contains umount $argv; and set cmd "$cmd; and umount $salt_root; and umount /salt 2>&1 | grep -q 'not mounted'; and sleep 3; and umount $salt_root; true"
+contains umount $argv; and set cmd "$cmd; and umount $salt_root; true"
 contains rmmod  $argv; and set cmd "$cmd; and rmmod --force saltfs; true"
 contains insmod $argv; and set cmd "$cmd; and insmod /module/saltfs.ko"
-contains mount  $argv; and set cmd "$cmd; and mount -t saltfs saltfs /salt"
-contains ls     $argv; and set cmd "$cmd; and ls /salt/"
+contains mount  $argv; and set cmd "$cmd; and mkdir -p $salt_root; mount -t saltfs saltfs $salt_root"
+contains ls     $argv; and set cmd "$cmd; and ls $salt_root"
 
 set cmd "$cmd'"
 
