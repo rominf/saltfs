@@ -2,6 +2,7 @@
 
 #include "internal.h"
 #include "user.h"
+#include "string.h"
 
 #include <asm/uaccess.h>
 #include <linux/kernel.h>
@@ -12,9 +13,8 @@
 #include <linux/string.h>
 
 #define SALT_OUTPUT_MAX_LINE_COUNT 1024
-#define SALT_OUTPUT_MAX_LINE_LENGTH 256
+#define SALT_OUTPUT_MAX_LINE_LENGTH 512
 #define SALT_OUTPUT_FILE "/proc/saltfs"
-
 
 //struct kmem_cache *salt_output_cachep;
 
@@ -23,21 +23,15 @@ struct salt_userspace_output salt_output = {
 		.line_count = 0,
 };
 
-int prepare_minion_list(void)
+int salt_list(char const salt_list_cmd[])
 {
+	int result;
+	char *salt_list_cmd_full;
 	char *argv[] = {
-//			"/usr/bin/env",
-//			"fish",
 //			"/bin/sh",
-			"/usr/bin/fish",
+			"/usr/bin/fish",  /* Full path here */
 			"-c",
-			/* No commas! */
-//			"echo -e '1\n2\n3'"
-			"complete --do-complete='salt_common --' >/dev/null; and "
-			"__fish_salt_list_minion accepted"
-					" >"
-					SALT_OUTPUT_FILE,
-//					"/tmp/saltfs",
+			"",
 			NULL
 	};
 	static char *envp[] = {
@@ -46,19 +40,27 @@ int prepare_minion_list(void)
 			"PATH=/sbin:/bin:/usr/sbin:/usr/bin",
 			NULL
 	};
+	salt_list_cmd_full = vstrcat(
+			"complete --do-complete='salt_common --' >/dev/null; and ",
+			salt_list_cmd, " >"
+					SALT_OUTPUT_FILE,
+//					"/tmp/saltfs",
+			(char *)NULL
+	);
+	argv[2] = salt_list_cmd_full;
 	pr_debug("saltfs: executing usermodehelper; argv: '%s', '%s', '%s'\n",
 			argv[0], argv[1], argv[2]);
-	return call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC);
+	result = call_usermodehelper(argv[0], argv, envp, UMH_WAIT_PROC);
+	kfree(salt_list_cmd_full);
+	return result;
 }
 
-static void proc_input_flush_line(char *line, u8 const line_length)
+static void proc_input_flush_line(char *line, unsigned int const line_length)
 {
 	if (line_length) {
 		line[line_length] = '\0';
 		salt_output.lines[salt_output.line_count] =
-				(char *) kcalloc(line_length + 1, sizeof(char), GFP_KERNEL);
-		pr_debug("saltfs: allocated %d bytes for line No %d\n",
-				line_length + 1, salt_output.line_count);
+				(char *)kcalloc(line_length + 1, sizeof(char), GFP_KERNEL);
 		salt_output.lines[salt_output.line_count] =
 				strncpy(salt_output.lines[salt_output.line_count], line, line_length);
 		pr_debug("saltfs: read '%s'\n", salt_output.lines[salt_output.line_count]);
@@ -69,12 +71,12 @@ static void proc_input_flush_line(char *line, u8 const line_length)
 static ssize_t proc_input(struct file *filp, const char *buff, size_t len, loff_t *off)
 {
 	int i;
-	u8 line_length;
+	unsigned int line_length;
 	char *line;
 	line = (char *)kcalloc(SALT_OUTPUT_MAX_LINE_LENGTH, sizeof(char), GFP_KERNEL);
 	line_length = 0;
 	pr_debug("saltfs: start reading from proc\n");
-	for (i = 0; i < SALT_OUTPUT_MAX_LINE_LENGTH - 1 && i < len; i++, line_length++) {
+	for (i = 0; line_length < SALT_OUTPUT_MAX_LINE_LENGTH - 1 && i < len; i++, line_length++) {
 		get_user(line[line_length], buff + i);
 		if (line[line_length] == '\n') {
 			proc_input_flush_line(line, line_length);

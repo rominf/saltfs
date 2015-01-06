@@ -1,6 +1,7 @@
 #include "dir.h"
 #include "internal.h"
 #include "user.h"
+#include "string.h"
 
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
@@ -28,10 +29,88 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 //#define SALT_OUTPUT_FILE(WHAT) (SALT_OUTPUT_DIR ## WHAT)
 //#define SALT_OUTPUT_MINIONS_FILE SALT_OUTPUT_DIR ## minions
 
-static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry)
+struct salt_item_spec {
+	enum salt_dir_entry_type next_item_type;
+	char *(*list_cmd)(struct salt_inode const *si);
+	char *name;
+//	char *dir_name;
+//	char *list_cmd_template;
+};
+
+extern struct salt_item_spec salt_items_spec[];
+
+static char *list_cmd_root(struct salt_inode const *si) {
+	pr_debug("saltfs: list_cmd_root\n");
+	return vstrcat("",
+			(char *)NULL);
+}
+
+static char *list_cmd_minion(struct salt_inode const *si) {
+	pr_debug("saltfs: list_cmd_minion\n");
+	return vstrcat("__fish_salt_list_minion accepted",
+			(char *)NULL);
+//	return salt_items_spec[Salt_minion].list_cmd_template;
+}
+
+static char *list_cmd_module(struct salt_inode const *si) {
+//	static char result[SALT_LIST_CMD_FULL_MAX_LENGTH];
+//	snprintf(result, sizeof(SALT_LIST_CMD_FULL_MAX_LENGTH),
+//			salt_items_spec[Salt_module].list_cmd_template, si->parent->name);
+//	return result;
+	char *minion = si->name;
+	pr_debug("saltfs: list_cmd_module; minion=%s\n", minion);
+	return vstrcat("set -g __fish_salt_program salt; and ",
+			"set -g __fish_salt_extracted_minion ", minion, "; and ",
+			"__fish_salt_list_module",
+			(char *)NULL);
+}
+
+struct salt_item_spec salt_items_spec[] = {
+		{
+				.name = "root",
+				.list_cmd = list_cmd_root,
+//				.list_cmd_template = "",
+				.next_item_type = Salt_minion,
+		},
+		{
+				.name = "minion",
+				.list_cmd = list_cmd_minion,
+//				.list_cmd_template = "__fish_salt_list_minion accepted",
+				.next_item_type = Salt_module,
+		},
+		{
+				.name = "module",
+				.list_cmd = list_cmd_module,
+//				.list_cmd_template = "set -g __fish_salt_program salt, and "
+//						"set -g __fish_salt_extracted_minion %s, and "
+//						"__fish_salt_list_module",
+				.next_item_type = Salt_module,
+		},
+};
+
+void salt_fill_salt_inode(
+		struct inode *dir,
+		char const *name,
+		enum salt_dir_entry_type const type,
+		struct inode *parent
+)
+{
+	struct salt_inode *ei;
+	unsigned int len = strlen(name);
+
+	ei = SALT_I(dir);
+	ei->name = kmalloc(len + 1, GFP_KERNEL);
+	memcpy(ei->name, name, len + 1);
+	ei->type = type;
+	ei->parent = SALT_I(parent);
+	pr_debug("saltfs: new salt_inode filled; i_ino=%zu, name=%s, type=%d\n",
+			dir->i_ino, ei->name, ei->type);
+}
+
+static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
+		enum salt_dir_entry_type const type)
 {
 	struct inode *inode;
-	struct salt_inode *ei;
 
 	inode = new_inode(dir->i_sb);
 
@@ -40,163 +119,103 @@ static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry)
 	if (!inode)
 		goto out;
 
-	ei = SALT_I(inode);
 	inode->i_ino = get_next_ino();
-	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
-	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
+	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+	inode->i_op = &simple_dir_inode_operations;
+	inode->i_fop = &salt_dir_operations;
+	inode_init_owner(inode, NULL, S_IFDIR | 0770);
+//	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
 	inode->i_flags |= S_IMMUTABLE;
 
-	pr_debug("saltfs: new inode filled\n");
+	pr_debug("saltfs: new inode filled; i_ino=%zu\n", inode->i_ino);
 
 out:
 	return inode;
 //	return -ENOENT;
 }
 
-bool salt_fill_cache_minion(struct file *file, struct dir_context *ctx,
-	const char *name, int len)
+bool salt_fill_cache_item(struct file *file, struct dir_context *ctx,
+	char const *name, int len, enum salt_dir_entry_type const type)
 {
 	struct dentry *child, *dir = file->f_path.dentry;
 	struct qstr qname = QSTR_INIT(name, len);
-	struct inode *inode;
-	unsigned type;
-	ino_t ino;
+	struct inode *inode, *parent_inode = dir->d_inode;
+//	unsigned type;
+//	ino_t ino;
 
-	pr_debug("saltfs: salt_fill_cache_minion: name='%s'; variables inited\n", name);
-
-	inode = salt_create_inode(dir->d_inode, dir);
+	pr_debug("saltfs: salt_fill_cache_item: name='%s', i_ino: %zu; variables inited\n",
+			name, dir->d_inode->i_ino);
 
 	child = d_hash_and_lookup(dir, &qname);
 	if (!child) {
 		child = d_alloc(dir, &qname);
-		pr_debug("saltfs: salt_fill_cache_minion: allocated child\n");
+		pr_debug("saltfs: salt_fill_cache_item: allocated child\n");
+
+		inode = salt_create_inode(parent_inode, dir, type);
+		salt_fill_salt_inode(inode, name, type, parent_inode);
+
 		d_add(child, inode);
 		pr_debug("saltfs: new dentry cached\n");
 	}
-	pr_debug("saltfs: salt_fill_cache_minion: trying to init inode and etc.\n");
+//	pr_debug("saltfs: salt_fill_cache_item: trying to init inode and etc.\n");
 //	inode = child->d_inode;
-	pr_debug("saltfs: salt_fill_cache_minion: inited inode %p\n", inode);
-	ino = inode->i_ino;
-	type = inode->i_mode >> 12;
-	pr_debug("saltfs: salt_fill_cache_minion: trying to dput child\n");
-	dput(child);
-
-	pr_debug("saltfs: salt_fill_cache_minion: before dir_emit\n");
+//	pr_debug("saltfs: salt_fill_cache_item: inited inode %p\n", inode);
+//	ino = inode->i_ino;
+//	type = inode->i_mode >> 12;
+//	pr_debug("saltfs: salt_fill_cache_item: trying to dput child\n");
+//	dput(child);
+//
+//	pr_debug("saltfs: salt_fill_cache_item: before dir_emit\n");
 
 	return 0;
 //	return dir_emit(ctx, name, len, ino, type);
 }
 
-int salt_readdir_de(/*struct salt_dir_entry *de, */struct file *file, struct dir_context *ctx)
+static int salt_readdir_de(struct file *file, struct dir_context *ctx)
 {
 	int i;
-	char *minion;
-	static bool emited = false;
+	int const path_len = 1024;
+	char buf[path_len];
+	char *path;
+	char *salt_item;
+	char *next_item_list_cmd;
+	struct salt_inode *si = SALT_I(file->f_inode);
+	enum salt_dir_entry_type next_item_type = salt_items_spec[si->type].next_item_type;
 
-	pr_debug("saltfs: salt_readdir_de: called with dir '%s'", file->f_path.dentry->d_name.name);
-	if (!dir_emit_dots(file, ctx))
-		return 0;
-
-//	spin_lock(&salt_subdir_lock_subdir_lock);
-//	dir_emit(ctx, "test", 4, SALT_ROOT_INO + 1, 0);
-//	ctx->pos++;
-
-//	if (emited)
+	path = dentry_path_raw(file->f_path.dentry, buf, path_len - 1);
+	pr_debug("saltfs: salt_readdir_de: called with dir '%s', type %d, i_ino=%zu\n",
+			path, si->type, file->f_inode->i_ino);
+//	if (!dir_emit_dots(file, ctx))
 //		return 0;
-//	else
-//		emited = true;
+//	pr_debug("saltfs: salt_readdir_de: called with dir '%s', type %d, i_ino=%zu",
 
-	prepare_minion_list();
+	pr_debug("saltfs: salt_readdir_de: next_item: name=%s, type=%d\n",
+			salt_items_spec[next_item_type].name, next_item_type);
+	next_item_list_cmd = salt_items_spec[next_item_type].list_cmd(si);
+	pr_debug("saltfs: salt_readdir_de: next_item: list_cmd='%s'\n",
+			next_item_list_cmd);
+
+	salt_list(next_item_list_cmd);
+	kfree(next_item_list_cmd);
 	for (i = 0; i < salt_output.line_count; i++) {
-		minion = salt_output.lines[i];
-		pr_debug("saltfs: caching minion '%s'\n", minion);
-//		ctx->pos++;
-		salt_fill_cache_minion(file, ctx, minion, strlen(minion));
-		pr_debug("saltfs: cached minion '%s'\n", minion);
+		salt_item = salt_output.lines[i];
+		pr_debug("saltfs: caching item '%s'\n", salt_item);
+		salt_fill_cache_item(
+				file, ctx, salt_item, strlen(salt_item), next_item_type);
+		pr_debug("saltfs: cached item '%s'\n", salt_item);
 	}
 	dcache_readdir(file, ctx);
 
-//	spin_unlock(&salt_subdir_lock);
 	return 0;
-
-//	spin_lock(&saltfs_subdir_lock_subdir_lock);
-//	de = de->subdir;
-//	i = ctx->pos - 2;
-//	for (;;) {
-//		if (!de) {
-//			spin_unlock(&proc_subdir_lock);
-//			return 0;
-//		}
-//		if (!i)
-//			break;
-//		de = de->next;
-//		i--;
-//	}
-//
-//	do {
-//		struct proc_dir_entry *next;
-//		pde_get(de);
-//		spin_unlock(&proc_subdir_lock);
-//		if (!dir_emit(ctx, de->name, de->namelen,
-//			    de->low_ino, de->mode >> 12)) {
-//			pde_put(de);
-//			return 0;
-//		}
-//		spin_lock(&proc_subdir_lock);
-//		ctx->pos++;
-//		next = de->next;
-//		pde_put(de);
-//		de = next;
-//	} while (de);
-//	spin_unlock(&proc_subdir_lock);
-//	return 1;
 }
 
-int salt_readdir(struct file *file, struct dir_context *ctx)
+static int salt_readdir(struct file *file, struct dir_context *ctx)
 {
 //	struct inode *inode = file_inode(file);
 	pr_debug("saltfs: readdir\n");
 //	struct salt_inode = kmalloc(PATH_MAX, GFP_KERNEL);
-	return salt_readdir_de(/*PDE(inode),*/file, ctx);
+	return salt_readdir_de(file, ctx);
 }
-
-//struct inode *proc_get_inode(struct super_block *sb, struct proc_dir_entry *de)
-//{
-//	struct inode *inode = new_inode_pseudo(sb);
-//
-//	if (inode) {
-//		inode->i_ino = de->low_ino;
-//		inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
-//		PROC_I(inode)->pde = de;
-//
-//		if (de->mode) {
-//			inode->i_mode = de->mode;
-//			inode->i_uid = de->uid;
-//			inode->i_gid = de->gid;
-//		}
-//		if (de->size)
-//			inode->i_size = de->size;
-//		if (de->nlink)
-//			set_nlink(inode, de->nlink);
-//		WARN_ON(!de->proc_iops);
-//		inode->i_op = de->proc_iops;
-//		if (de->proc_fops) {
-//			if (S_ISREG(inode->i_mode)) {
-//#ifdef CONFIG_COMPAT
-//				if (!de->proc_fops->compat_ioctl)
-//					inode->i_fop =
-//						&proc_reg_file_ops_no_compat;
-//				else
-//#endif
-//				inode->i_fop = &proc_reg_file_ops;
-//			} else {
-//				inode->i_fop = de->proc_fops;
-//			}
-//		}
-//	} else
-//		pde_put(de);
-//	return inode;
-//}
 
 ssize_t salt_read_dir(struct file *filp, char __user *buf, size_t siz, loff_t *ppos)
 {
@@ -204,40 +223,10 @@ ssize_t salt_read_dir(struct file *filp, char __user *buf, size_t siz, loff_t *p
 	return -EISDIR;
 }
 
-//bool salt_fill_cache(struct file *file, struct dir_context *ctx,
-//		const char *name, int len, instantiate_t instantiate,
-//		const void *ptr)
-//{
-//	struct dentry *child, *dir = file->f_path.dentry;
-//	struct qstr qname = QSTR_INIT(name, len);
-//	struct inode *inode;
-//	unsigned type;
-//	ino_t ino;
-//
-//	child = d_hash_and_lookup(dir, &qname);
-//	if (!child) {
-//		child = d_alloc(dir, &qname);
-//		if (!child)
-//			goto end_instantiate;
-//		if (instantiate(dir->d_inode, child, task, ptr) < 0) {
-//			dput(child);
-//			goto end_instantiate;
-//		}
-//	}
-//	inode = child->d_inode;
-//	ino = inode->i_ino;
-//	type = inode->i_mode >> 12;
-//	dput(child);
-//	return dir_emit(ctx, name, len, ino, type);
-//
-//	end_instantiate:
-//	return dir_emit(ctx, name, len, 1, DT_UNKNOWN);
-//}
 
 const struct file_operations salt_dir_operations = {
 		.open			= dcache_dir_open,
 		.llseek			= generic_file_llseek,
-//		.read			= salt_read_dir,
 		.read			= generic_read_dir,
 		.iterate		= salt_readdir,
 };

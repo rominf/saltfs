@@ -11,7 +11,11 @@
 #define SALT_ROOT_INO 1
 
 enum salt_dir_entry_type {
-	Salt_minion, Salt_module, Salt_function, Salt_grain
+	Salt_root = 0,
+	Salt_minion = 1,
+	Salt_module = 2,
+	Salt_function = 3,
+	Salt_grain = 4,
 };
 
 struct salt_dir_entry {
@@ -29,8 +33,9 @@ struct salt_inode {
 	enum salt_dir_entry_type type;
 	struct salt_dir_entry *sde;
 	struct inode vfs_inode;
+	struct salt_inode *parent;
 	u8 namelen;
-	char name[];
+	char *name;
 };
 
 static inline struct salt_inode *SALT_I(const struct inode *inode)

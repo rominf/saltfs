@@ -1,5 +1,5 @@
 obj-m := saltfs.o
-saltfs-objs := dir.o inode.o super.o user.o
+saltfs-objs := dir.o inode.o string.o super.o user.o
 
 ccflags-y += -DDEBUG
 

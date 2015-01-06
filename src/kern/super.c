@@ -66,7 +66,7 @@ static struct super_operations const salt_super_ops = {
 static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
-
+	struct salt_inode *ei;
 
 	sb->s_flags |= MS_NODIRATIME | MS_NOSUID | MS_NOEXEC;
 	sb->s_blocksize = 1024;
@@ -76,7 +76,8 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	sb->s_op = &salt_super_ops;
 
 	root = new_inode(sb);
-
+	ei = SALT_I(root);
+	ei->type = Salt_root;
 	root->i_ino = SALT_ROOT_INO;
 	root->i_sb = sb;
 	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
@@ -89,6 +90,8 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 		pr_err("saltfs: cannot create root\n");
 		return -ENOMEM;
 	}
+
+	salt_fill_salt_inode(root, "/", Salt_root, root);
 
 	return 0;
 }
