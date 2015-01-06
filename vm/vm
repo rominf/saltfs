@@ -1,10 +1,6 @@
 #!/usr/bin/env fish
 
 function vm_ssh
-	function wait_ctrl_l
-		sh -c 'sleep 2; xdotool key control+L' &
-	end
-	wait_ctrl_l
 	while not vagrant ssh
 		sleep 1
 	end

@@ -1,10 +1,5 @@
 #!/usr/bin/env fish
 
-# if contains force $argv
-# 	set rmmod_args -- '--force'
-# end
-
-
 set root "../"
 set src "$root/src/kern/"
 set cmd "fish -c 'sleep 0"
@@ -15,7 +10,6 @@ function show_help
 end
 contains help $argv; or contains -- '--help' $argv; or contains -- '-h' $argv; and show_help
 
-#contains build  $argv; and set tmpbin /tmp/saltfs; mkdir -p $tmpbin; and cmake --build $tmpbin --target saltfs; and cp -f $tmpbin/saltfs.ko $src/saltfs.ko
 contains build  $argv; and /opt/clion/bin/cmake/bin/cmake --build /home/romas/.clion10/system/cmake/generated/e206224e/e206224e/Debug --target saltfs
 contains copy   $argv; and cp -f $src/saltfs.ko $root/bin/
 contains clean  $argv; and cd $src; and ./clean.fish; and cd -
