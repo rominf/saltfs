@@ -15,5 +15,8 @@ http://people.ee.ethz.ch/~arkeller/linux/kernel_user_space_howto.html
 - In contrast to most file system based approaches seen so far, the user has to create the device file explicitly 
 - Кривые названия: /dev/что-тоN
 3.
-- Сложность использования.
+- Сложность использования в ядре.
 - Необходимо писать специальное приложение в userspace.
+5.
+- Модификация ядра (сильно снижает применимость).
+
