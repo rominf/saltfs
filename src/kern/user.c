@@ -130,11 +130,11 @@ int salt_list(char const salt_list_cmd[], int const ino)
 	sprintf(ino_str, "%d", ino);
 	salt_list_cmd_full = vstrcat(
 			"complete --do-complete='salt_common --' >/dev/null; and ",
-			salt_list_cmd, " >"
+			"complete --do-complete='saltfs      --' >/dev/null; and ",
+			salt_list_cmd,
+			" >"
 					SALT_OUTPUT_PROC_ROOT, ino_str,
-//					"/tmp/saltfs",
-			(char *)NULL
-	);
+			NULL);
 	argv[2] = salt_list_cmd_full;
 
 	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);

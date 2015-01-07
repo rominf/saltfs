@@ -19,6 +19,7 @@ enum salt_dir_entry_type {
 	Salt_module = 2,
 	Salt_function = 3,
 	Salt_grain = 4,
+	Salt_NULL = 42,
 };
 
 struct salt_dir_entry {

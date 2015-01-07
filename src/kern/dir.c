@@ -30,33 +30,39 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 //#define SALT_OUTPUT_MINIONS_FILE SALT_OUTPUT_DIR ## minions
 
 
-static int const refresh_delay = 8;  /* in seconds */
+static int const refresh_delay = 4;  /* in seconds */
 
 extern struct salt_item_spec const salt_items_spec[];
 
 static char *list_cmd_root(struct salt_inode const *si) {
 	pr_debug("saltfs: get list_cmd_root string\n");
-	return vstrcat("",
-			(char *)NULL);
+	return vstrcat("", NULL);
 }
 
 static char *list_cmd_minion(struct salt_inode const *si) {
 	pr_debug("saltfs: get list_cmd_minion string\n");
-	return vstrcat("__fish_salt_list_minion accepted",
-			(char *)NULL);
-//	return salt_items_spec[Salt_minion].list_cmd_template;
+	return vstrcat("__fish_salt_list_minion accepted", NULL);
 }
+
+#define SALT_FISH_SET_MINION(minion) "set -g __fish_salt_extracted_minion ", minion, "; and "
 
 static char *list_cmd_module(struct salt_inode const *si) {
 	char *minion = si->name;
 	pr_debug("saltfs: get list_cmd_module string; minion=%s\n", minion);
 	return vstrcat("set -g __fish_salt_program salt; and ",
-			"set -g __fish_salt_extracted_minion ", minion, "; and ",
-//			"__fish_salt_list_minion accepted",
-//			"__fish_salt_list_module | sed '2,$d'",
-			"__fish_salt_list_funtion acl | sed '2,$d'",
-//			"salt --out txt minion test.ping",
-			(char *)NULL);
+			SALT_FISH_SET_MINION(minion),
+			"__fish_salt_list_module",
+			NULL);
+}
+
+static char *list_cmd_function(struct salt_inode const *si) {
+	char *minion = si->parent->name, *module = si->name;
+	pr_debug("saltfs: get list_cmd_funtion string; minion=%s, module=%s\n",
+			minion, module);
+	return vstrcat("set -g __fish_salt_program salt; and ",
+			SALT_FISH_SET_MINION(minion),
+			"__fish_salt_list_function_without_module ", module,
+			NULL);
 }
 
 struct salt_item_spec const salt_items_spec[] = {
@@ -64,16 +70,25 @@ struct salt_item_spec const salt_items_spec[] = {
 				.name = "root",
 				.list_cmd = list_cmd_root,
 				.next_item_type = Salt_minion,
+				.mode = S_IFDIR,
 		},
 		{
 				.name = "minion",
 				.list_cmd = list_cmd_minion,
 				.next_item_type = Salt_module,
+				.mode = S_IFDIR,
 		},
 		{
 				.name = "module",
 				.list_cmd = list_cmd_module,
-				.next_item_type = Salt_module,
+				.next_item_type = Salt_function,
+				.mode = S_IFDIR,
+		},
+		{
+				.name = "function",
+				.list_cmd = list_cmd_function,
+				.next_item_type = Salt_NULL,
+				.mode = S_IFREG,
 		},
 };
 
@@ -98,13 +113,15 @@ void salt_fill_salt_inode(
 
 void update_current_time(struct inode *inode)
 {
-	inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+	inode->i_atime = (struct timespec){0, 0};
+	inode->i_mtime = inode->i_ctime = CURRENT_TIME;
 }
 
 static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
 		enum salt_dir_entry_type const type)
 {
 	struct inode *inode;
+//	umode_t mode = (type == Salt_NULL) ? S_IFREG : S_IFDIR;
 
 	inode = new_inode(dir->i_sb);
 
@@ -116,12 +133,13 @@ static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
 	inode->i_ino = get_next_ino();
 	inode->i_op = &simple_dir_inode_operations;
 	inode->i_fop = &salt_dir_operations;
-	inode_init_owner(inode, NULL, S_IFDIR | 0770);
+	inode_init_owner(inode, NULL, salt_items_spec[type].mode | 0770);
 //	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
 	inode->i_flags |= S_IMMUTABLE;
 	update_current_time(inode);
 
-	pr_debug("saltfs: new inode filled; i_ino=%zu\n", inode->i_ino);
+	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d\n",
+			type, inode->i_ino, inode->i_mode);
 
 out:
 	return inode;
@@ -208,7 +226,7 @@ static int salt_readdir(struct file *file, struct dir_context *ctx)
 
 	if (CURRENT_TIME.tv_sec - inode->i_atime.tv_sec > refresh_delay) {
 		pr_debug("saltfs: salt_readdir: cache invalidation\n");
-		update_current_time(inode);
+		inode->i_atime = CURRENT_TIME;
 		salt_fill_dir(si, file->f_path.dentry, inode->i_ino, next_item_type);
 	}
 

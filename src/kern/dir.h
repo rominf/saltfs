@@ -5,9 +5,10 @@
 #include <linux/fs.h>
 
 struct salt_item_spec {
-	enum salt_dir_entry_type next_item_type;
-	char *(*list_cmd)(struct salt_inode const *si);
 	char *name;
+	char *(*list_cmd)(struct salt_inode const *si);
+	enum salt_dir_entry_type next_item_type;
+	umode_t mode;
 //	char *dir_name;
 //	char *list_cmd_template;
 };
