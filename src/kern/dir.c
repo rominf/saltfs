@@ -2,6 +2,7 @@
 #include "internal.h"
 #include "user.h"
 #include "string.h"
+#include "file.h"
 
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
@@ -34,6 +35,18 @@ static int const refresh_delay = 4;  /* in seconds */
 
 extern struct salt_item_spec const salt_items_spec[];
 
+struct salt_inode *parent_(struct salt_inode *si, enum salt_dir_entry_type const type) {
+	while (si->type != type)
+		si = si->parent;
+	return si;
+}
+
+struct salt_inode const *parent(struct salt_inode const *si, enum salt_dir_entry_type const type) {
+	while (si->type != type)
+		si = si->parent;
+	return si;
+}
+
 static char *list_cmd_root(struct salt_inode const *si) {
 	pr_debug("saltfs: get list_cmd_root string\n");
 	return vstrcat("", NULL);
@@ -44,23 +57,20 @@ static char *list_cmd_minion(struct salt_inode const *si) {
 	return vstrcat("__fish_salt_list_minion accepted", NULL);
 }
 
-#define SALT_FISH_SET_MINION(minion) "set -g __fish_salt_extracted_minion ", minion, "; and "
-
 static char *list_cmd_module(struct salt_inode const *si) {
 	char *minion = si->name;
 	pr_debug("saltfs: get list_cmd_module string; minion=%s\n", minion);
-	return vstrcat("set -g __fish_salt_program salt; and ",
-			SALT_FISH_SET_MINION(minion),
+	return vstrcat(SALT_FISH_SET_MINION(minion),
 			"__fish_salt_list_module",
 			NULL);
 }
 
 static char *list_cmd_function(struct salt_inode const *si) {
-	char *minion = si->parent->name, *module = si->name;
+	char const *minion = parent(si, Salt_minion)->name,
+			*module = parent(si, Salt_module)->name;
 	pr_debug("saltfs: get list_cmd_funtion string; minion=%s, module=%s\n",
 			minion, module);
-	return vstrcat("set -g __fish_salt_program salt; and ",
-			SALT_FISH_SET_MINION(minion),
+	return vstrcat(SALT_FISH_SET_MINION(minion),
 			"__fish_salt_list_function_without_module ", module,
 			NULL);
 }
@@ -68,8 +78,7 @@ static char *list_cmd_function(struct salt_inode const *si) {
 static char *list_cmd_grain(struct salt_inode const *si) {
 	char *minion = si->parent->name;
 	pr_debug("saltfs: get list_cmd_grain string; minion=%s\n", minion);
-	return vstrcat("set -g __fish_salt_program salt; and ",
-			SALT_FISH_SET_MINION(minion),
+	return vstrcat(SALT_FISH_SET_MINION(minion),
 			"__fish_salt_list_grain",
 			NULL);
 }
@@ -83,37 +92,42 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "root",
 				.list_cmd = list_cmd_root,
+				.proc_fops = NULL,
 				.next_item_type = Salt_minion,
-				.mode = S_IFDIR,
 				.next_items = NULL,
+				.mode = S_IFDIR,
 		},
 		{
 				.name = "minion",
 				.list_cmd = list_cmd_minion,
+				.proc_fops = NULL,
 				.next_item_type = Salt_module,
-				.mode = S_IFDIR,
 				.next_items = NULL,
+				.mode = S_IFDIR,
 		},
 		{
 				.name = "module",
 				.list_cmd = list_cmd_module,
+				.proc_fops = NULL,
 				.next_item_type = Salt_function,
-				.mode = S_IFDIR,
 				.next_items = salt_module_next_items,
+				.mode = S_IFDIR,
 		},
 		{
 				.name = "function",
 				.list_cmd = list_cmd_function,
+				.proc_fops = NULL,
 				.next_item_type = Salt_NULL,
-				.mode = S_IFREG,
 				.next_items = NULL,
+				.mode = S_IFREG,
 		},
 		{
 				.name = "grain",
 				.list_cmd = list_cmd_grain,
+				.proc_fops = &salt_grain_fops,
 				.next_item_type = Salt_NULL,
-				.mode = S_IFREG,
 				.next_items = NULL,
+				.mode = S_IFREG,
 		},
 };
 
@@ -157,7 +171,8 @@ static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
 
 	inode->i_ino = get_next_ino();
 	inode->i_op = &simple_dir_inode_operations;
-	inode->i_fop = &salt_dir_operations;
+	inode->i_fop = (salt_items_spec[type].proc_fops)?
+			salt_items_spec[type].proc_fops : &salt_dir_operations;
 	inode_init_owner(inode, NULL, salt_items_spec[type].mode | 0770);
 //	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
 	inode->i_flags |= S_IMMUTABLE;
@@ -208,7 +223,6 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 }
 
 void salt_fill_dir(struct salt_inode *si, struct dentry *dir, int const ino,
-//		enum salt_dir_entry_type next_item_type,
 		enum salt_dir_entry_type const type)
 {
 	int i = 0;
@@ -234,6 +248,7 @@ void salt_fill_dir(struct salt_inode *si, struct dentry *dir, int const ino,
 	next_item_list_cmd = salt_items_spec[next_item_type].list_cmd(si);
 	pr_debug("saltfs: salt_readdir: next_item: list_cmd='%s'\n",
 			next_item_list_cmd);
+
 	salt_list(next_item_list_cmd, ino);
 	kfree(next_item_list_cmd);
 
