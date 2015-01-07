@@ -1,3 +1,6 @@
+#ifndef __SALTFS_INTERNAL_H__
+#define __SALTFS_INTERNAL_H__
+
 #include <linux/proc_fs.h>
 #include <linux/proc_ns.h>
 #include <linux/spinlock.h>
@@ -47,3 +50,5 @@ static inline struct salt_dir_entry *SDE(const struct inode *inode)
 {
 	return SALT_I(inode)->sde;
 }
+
+#endif /*__SALTFS_INTERNAL_H__*/

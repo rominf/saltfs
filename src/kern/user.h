@@ -1,5 +1,5 @@
-#ifndef __USER_H__
-#define __USER_H__
+#ifndef __SALTFS_USER_H__
+#define __SALTFS_USER_H__
 
 #include <linux/types.h>
 
@@ -18,4 +18,4 @@ int salt_list(char const salt_list_cmd[], int const ino);
 void init_proc(void);
 void shutdown_proc(void);
 
-#endif /*__USER_H__*/
+#endif /*__SALTFS_USER_H__*/

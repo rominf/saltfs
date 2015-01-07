@@ -32,15 +32,7 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 
 static int const refresh_delay = 8;  /* in seconds */
 
-struct salt_item_spec {
-	enum salt_dir_entry_type next_item_type;
-	char *(*list_cmd)(struct salt_inode const *si);
-	char *name;
-//	char *dir_name;
-//	char *list_cmd_template;
-};
-
-extern struct salt_item_spec salt_items_spec[];
+extern struct salt_item_spec const salt_items_spec[];
 
 static char *list_cmd_root(struct salt_inode const *si) {
 	pr_debug("saltfs: get list_cmd_root string\n");
@@ -56,22 +48,18 @@ static char *list_cmd_minion(struct salt_inode const *si) {
 }
 
 static char *list_cmd_module(struct salt_inode const *si) {
-//	static char result[SALT_LIST_CMD_FULL_MAX_LENGTH];
-//	snprintf(result, sizeof(SALT_LIST_CMD_FULL_MAX_LENGTH),
-//			salt_items_spec[Salt_module].list_cmd_template, si->parent->name);
-//	return result;
 	char *minion = si->name;
 	pr_debug("saltfs: get list_cmd_module string; minion=%s\n", minion);
 	return vstrcat("set -g __fish_salt_program salt; and ",
 			"set -g __fish_salt_extracted_minion ", minion, "; and ",
 //			"__fish_salt_list_minion accepted",
 //			"__fish_salt_list_module | sed '2,$d'",
-//			"__fish_salt_list_funtion acl | sed '2,$d'",
-			"salt --out txt minion test.ping",
+			"__fish_salt_list_funtion acl | sed '2,$d'",
+//			"salt --out txt minion test.ping",
 			(char *)NULL);
 }
 
-struct salt_item_spec salt_items_spec[] = {
+struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "root",
 				.list_cmd = list_cmd_root,
@@ -140,10 +128,10 @@ out:
 //	return -ENOENT;
 }
 
-bool salt_fill_cache_item(struct file *file, struct dir_context *ctx,
-	char const *name, int len, enum salt_dir_entry_type const type)
+bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
+		enum salt_dir_entry_type const type)
 {
-	struct dentry *child, *dir = file->f_path.dentry;
+	struct dentry *child;
 	struct qstr qname = QSTR_INIT(name, len);
 	struct inode *inode, *parent_inode = dir->d_inode;
 //	unsigned type;
@@ -174,15 +162,33 @@ bool salt_fill_cache_item(struct file *file, struct dir_context *ctx,
 //	pr_debug("saltfs: salt_fill_cache_item: before dir_emit\n");
 
 	return 0;
-//	return dir_emit(ctx, name, len, ino, type);
+}
+
+void salt_fill_dir(struct salt_inode *si, struct dentry *dir, int const ino,
+		enum salt_dir_entry_type const next_item_type)
+{
+	int i;
+	char *next_item_list_cmd;
+	char *salt_item;
+	struct salt_userspace_output *salt_output;
+	next_item_list_cmd = salt_items_spec[next_item_type].list_cmd(si);
+	pr_debug("saltfs: salt_readdir: next_item: list_cmd='%s'\n",
+			next_item_list_cmd);
+	salt_list(next_item_list_cmd, ino);
+	kfree(next_item_list_cmd);
+
+	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
+	for (i = 0; i < salt_output->line_count; i++) {
+		salt_item = salt_output->lines[i];
+		//		pr_debug("saltfs: caching item '%s'\n", salt_item);
+		salt_fill_cache_item(
+				dir, salt_item, strlen(salt_item), next_item_type);
+		//		pr_debug("saltfs: cached item '%s'\n", salt_item);
+	}
 }
 
 static int salt_readdir(struct file *file, struct dir_context *ctx)
 {
-	int i;
-	char *salt_item;
-	char *next_item_list_cmd;
-	struct salt_userspace_output *salt_output;
 	struct inode *inode = file->f_inode;
 	struct salt_inode *si = SALT_I(inode);
 	enum salt_dir_entry_type next_item_type = salt_items_spec[si->type].next_item_type;
@@ -203,21 +209,7 @@ static int salt_readdir(struct file *file, struct dir_context *ctx)
 	if (CURRENT_TIME.tv_sec - inode->i_atime.tv_sec > refresh_delay) {
 		pr_debug("saltfs: salt_readdir: cache invalidation\n");
 		update_current_time(inode);
-
-		next_item_list_cmd = salt_items_spec[next_item_type].list_cmd(si);
-		pr_debug("saltfs: salt_readdir: next_item: list_cmd='%s'\n",
-				next_item_list_cmd);
-		salt_list(next_item_list_cmd, inode->i_ino);
-		kfree(next_item_list_cmd);
-
-		salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, inode->i_ino);
-		for (i = 0; i < salt_output->line_count; i++) {
-			salt_item = salt_output->lines[i];
-	//		pr_debug("saltfs: caching item '%s'\n", salt_item);
-			salt_fill_cache_item(
-					file, ctx, salt_item, strlen(salt_item), next_item_type);
-	//		pr_debug("saltfs: cached item '%s'\n", salt_item);
-		}
+		salt_fill_dir(si, file->f_path.dentry, inode->i_ino, next_item_type);
 	}
 
 	return dcache_readdir(file, ctx);
@@ -230,7 +222,7 @@ ssize_t salt_read_dir(struct file *filp, char __user *buf, size_t siz, loff_t *p
 }
 
 
-const struct file_operations salt_dir_operations = {
+struct file_operations const salt_dir_operations = {
 		.open			= dcache_dir_open,
 		.llseek			= generic_file_llseek,
 		.read			= generic_read_dir,

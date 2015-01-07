@@ -1,6 +1,6 @@
-#ifndef __SALT_STRING_H__
-#define __SALT_STRING_H__
+#ifndef __SALTFS_STRING_H__
+#define __SALTFS_STRING_H__
 
 char *vstrcat(char const *first, ...);
 
-#endif /*__SALT_STRING_H__*/
+#endif /*__SALTFS_STRING_H__*/

@@ -80,10 +80,10 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	ei->type = Salt_root;
 	root->i_ino = SALT_ROOT_INO;
 	root->i_sb = sb;
-	root->i_atime = root->i_mtime = root->i_ctime = CURRENT_TIME;
 	root->i_op = &simple_dir_inode_operations;
 	root->i_fop = &salt_dir_operations;
 	inode_init_owner(root, NULL, S_IFDIR | 0770);
+	update_current_time(root);
 
 	sb->s_root = d_make_root(root);
 	if (!sb->s_root) {
@@ -92,6 +92,7 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	}
 
 	salt_fill_salt_inode(root, "/", Salt_root, root);
+	salt_fill_dir(ei, sb->s_root, root->i_ino, salt_items_spec[Salt_root].next_item_type);
 
 	return 0;
 }
