@@ -92,7 +92,7 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	}
 
 	salt_fill_salt_inode(root, "/", Salt_root, root);
-	salt_fill_dir(ei, sb->s_root, root->i_ino, salt_items_spec[Salt_root].next_item_type);
+	salt_fill_dir(ei, sb->s_root, root->i_ino, Salt_root);
 
 	return 0;
 }

@@ -365,10 +365,6 @@ function __fish_salt_list_function
 	__fish_salt_exec_and_clean yaml sys.list_functions $argv
 end
 
-function __fish_salt_list_function_without_module
-	__fish_salt_list_function $argv | sed "s/^.*\.//g"
-end
-
 function __fish_salt_list_grain
 	 __fish_salt_exec_and_clean yaml grains.ls $argv
 end
