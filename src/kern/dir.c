@@ -85,7 +85,7 @@ static char *list_cmd_grain(struct salt_dir_entry const *sde) {
 
 struct salt_next_item_spec const salt_module_next_items[] = {
 		{ .name = "grains", .type = Salt_grain,    },
-		{ .name = "",       .type = Salt_function, },
+		{                   .type = Salt_function, },
 };
 
 struct salt_item_spec const salt_items_spec[] = {
@@ -218,7 +218,7 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	enum salt_dir_entry_type next_item_type;
 
 	if (next_item) {
-		while (next_item->name[0] != '\0') {
+		while (!next_item->name) {
 			if (strcmp(next_item->name, sde->name) == 0)
 				break;
 			next_item++;
