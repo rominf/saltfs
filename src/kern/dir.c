@@ -230,7 +230,7 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	enum salt_dir_entry_type next_item_type;
 
 	if (next_item) {
-		while (!next_item->name) {
+		while (next_item->name) {
 			if (strcmp(next_item->name, sde->name) == 0)
 				break;
 			next_item++;
