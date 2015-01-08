@@ -1,0 +1,14 @@
+#!/usr/bin/env fish
+
+set salt_root "/salt"
+
+function show_help
+	echo -e "Usage:\n  ./manage umount rmmod insmod mount"
+	exit 0
+end
+contains help $argv; or contains -- '--help' $argv; or contains -- '-h' $argv; and show_help
+
+contains umount $argv; umount $salt_root
+contains rmmod  $argv; rmmod --force saltfs
+contains insmod $argv; insmod /module/saltfs.ko
+contains mount  $argv; mkdir -p $salt_root; mount -t saltfs saltfs $salt_root
