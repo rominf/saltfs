@@ -1,8 +1,10 @@
 #include "dir.h"
+#include "function.h"
 #include "internal.h"
 #include "string.h"
 #include "user.h"
 
+#include <asm/uaccess.h>
 #include <linux/fs.h>
 #include <linux/idr.h>
 #include <linux/init.h>
@@ -10,7 +12,6 @@
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/slab.h>
-#include <linux/utsname.h>
 
 
 static int salt_grain_show(struct seq_file *m, void *v)
@@ -37,9 +38,38 @@ static int salt_grain_open(struct inode *inode, struct file *file)
 	return single_open(file, salt_grain_show, (void *)inode);
 }
 
+static ssize_t salt_grain_write(struct file *file,
+		char const *buf, size_t count, loff_t *offset)
+{
+	int i;
+	struct inode *inode = file->f_inode;
+	char const *key = SDE(inode)->name;
+	char *args, *value = (char *)kcalloc(count + 1, sizeof(char), GFP_KERNEL);
+	for (i = 0; i < count; i++)
+		get_user(value[i], buf + i);
+	if (value[i] == '\n')
+		value[i] = '\0';
+	args = vstrcat(key, " ", value, NULL);
+	salt_function_call_parent_minion(inode, "grains.setval", args);
+	kfree(args);
+	return count;
+}
+
 struct file_operations const salt_grain_fops = {
-		.open		= salt_grain_open,
-		.read		= seq_read,
-		.llseek		= seq_lseek,
-		.release	= single_release,
+		.open       = salt_grain_open,
+		.read       = seq_read,
+		.write      = salt_grain_write,
+		.llseek     = seq_lseek,
+		.release    = single_release,
+};
+
+int salt_grain_unlink(struct inode *inode, struct dentry *de)
+{
+	pr_debug("saltfs: unlink grain '%s'\n", SDE(inode)->name);
+	salt_function_call_parent_minion(inode, "grains.remove", SDE(inode)->name);
+	return simple_unlink(inode, de);
+}
+
+struct inode_operations const salt_grain_iops = {
+		.unlink     = salt_grain_unlink,
 };

@@ -13,6 +13,7 @@ struct salt_item_spec {
 	char *name;
 	char *(*list_cmd)(struct salt_dir_entry const *si);
 	struct file_operations const *fops;
+	struct inode_operations const *iops;
 	enum salt_dir_entry_type next_item_type;
 	struct salt_next_item_spec const *next_items;
 	umode_t mode;

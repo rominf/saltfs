@@ -33,18 +33,27 @@ function suite_saltfs
   end
 
   function test_minion_grain_read
-    refute (ls /salt/minion/grains/id)
+    refute (cat /salt/minion/grains/id)
     assert (ls /salt/minion)
     assert (ls /salt/minion/grains)
     assert_equal (echo (__fish_salt_grain_read id)) (cat /salt/minion/grains/id)
   end
 
+  function test_minion_grain_rm
+    refute (rm /salt/minion/grains/test)
+    assert (ls /salt/minion)
+    assert (ls /salt/minion/grains)
+    assert (rm /salt/minion/grains/test)
+    refute (ls /salt/minion/grains/test)
+  end
+
   function test_minion_function_without_args
-    refute (ls /salt/minion/test)
+    refute (touch /salt/minion/test)
     assert (ls /salt/minion)
     assert (ls /salt/minion/test)
     assert (touch /salt/minion/test/ping)
   end
+
   function test_minion_function_with_args
     refute (ls /salt/minion/test)
     assert (ls /salt/minion)

@@ -122,6 +122,7 @@ struct salt_item_spec const salt_items_spec[] = {
 				.name = "grain",
 				.list_cmd = list_cmd_grain,
 				.fops = &salt_grain_fops,
+				.iops = &salt_grain_iops,
 				.mode = S_IFREG,
 		},
 };
@@ -198,20 +199,26 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 	inode->i_op = &simple_dir_inode_operations;
 	inode->i_fop = (salt_items_spec[type].fops)?
 			salt_items_spec[type].fops : &salt_dir_operations;
+	if (salt_items_spec[type].iops) {
+		pr_debug("saltfs: set iops\n");
+//		pr_debug("saltfs: may_delete=%d\n", may_delete(dir, dentry, false));
+		inode->i_op = salt_items_spec[type].iops;
+	}
 	inode_init_owner(inode, NULL, mode | 0770);
 	switch (mode & S_IFMT) {
 		case S_IFREG:
+			inode->i_flags |= O_RDWR | O_CREAT;
 			break;
 		case S_IFDIR:
-			inode->i_flags |= S_IMMUTABLE;
+//			inode->i_flags |= S_IMMUTABLE;
 			inc_nlink(inode);
 			break;
 	}
-	inc_nlink(inode);
+//	inc_nlink(inode);
 	update_current_time(inode);
 
-	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d\n",
-			type, inode->i_ino, inode->i_mode);
+	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d, i_flags=%ul\n",
+			type, inode->i_ino, inode->i_mode, inode->i_flags);
 
 out:
 	return inode;

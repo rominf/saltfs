@@ -12,7 +12,6 @@
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/types.h>
-#include <linux/utsname.h>
 
 
 char const *function_name(struct salt_dir_entry const *sde)
@@ -34,13 +33,16 @@ int salt_function_call(char const *minion, char const *function, char const *arg
 	return 0;
 }
 
+int salt_function_call_parent_minion(struct inode const *inode, char const *function, char const *args)
+{
+	char const *minion = parent(SDE(inode), Salt_minion)->name;
+	return salt_function_call(minion, function, args, inode->i_ino);
+}
+
 int salt_function_call_inode(struct inode const *inode, char const *args)
 {
-	int ret, ino = inode->i_ino;
-	struct salt_dir_entry *sde = SDE(inode);
-	char const *minion = parent(sde, Salt_minion)->name;
-	char const *function = function_name(sde);
-	ret = salt_function_call(minion, function, args, ino);
+	char const *function = function_name(SDE(inode));
+	int ret = salt_function_call_parent_minion(inode, function, args);
 	kfree(function);
 	return ret;
 }
