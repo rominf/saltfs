@@ -17,3 +17,6 @@ function __fish_salt_list_function_without_module
 	rm $tmpfile
 end
 
+function __fish_salt_grain_read
+	__fish_salt_exec_and_clean nested grains.get $argv
+end

@@ -89,23 +89,18 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "root",
 				.list_cmd = list_cmd_root,
-//				.fops = NULL,
 				.next_item_type = Salt_minion,
-				.next_items = NULL,
 				.mode = S_IFDIR,
 		},
 		{
 				.name = "minion",
 				.list_cmd = list_cmd_minion,
-//				.proc_fops = NULL,
 				.next_item_type = Salt_module,
-				.next_items = NULL,
 				.mode = S_IFDIR,
 		},
 		{
 				.name = "module",
 				.list_cmd = list_cmd_module,
-//				.proc_fops = NULL,
 				.next_item_type = Salt_function,
 				.next_items = salt_module_next_items,
 				.mode = S_IFDIR,
@@ -115,7 +110,6 @@ struct salt_item_spec const salt_items_spec[] = {
 				.list_cmd = list_cmd_function,
 				.fops = &salt_function_fops,
 				.next_item_type = Salt_NULL,
-				.next_items = NULL,
 				.mode = S_IFREG,
 		},
 		{
@@ -123,7 +117,6 @@ struct salt_item_spec const salt_items_spec[] = {
 				.list_cmd = list_cmd_grain,
 				.fops = &salt_grain_fops,
 				.next_item_type = Salt_NULL,
-				.next_items = NULL,
 				.mode = S_IFREG,
 		},
 };
