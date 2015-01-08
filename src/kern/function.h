@@ -1,0 +1,1 @@
+extern struct file_operations const salt_function_fops;

@@ -66,7 +66,7 @@ static void proc_input_flush_line(char *line, unsigned int const line_length,
 	}
 }
 
-static ssize_t proc_input(struct file *filp, const char *buff, size_t len, loff_t *off)
+static ssize_t proc_write(struct file *filp, const char *buff, size_t len, loff_t *off)
 {
 	int i, ino;
 	unsigned int line_length;
@@ -92,7 +92,7 @@ static ssize_t proc_input(struct file *filp, const char *buff, size_t len, loff_
 
 static const struct file_operations proc_fops = {
 		.owner = THIS_MODULE,
-		.write = proc_input,
+		.write = proc_write,
 		.llseek = seq_lseek,
 };
 

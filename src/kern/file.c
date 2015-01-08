@@ -4,13 +4,13 @@
 #include "user.h"
 
 #include <linux/fs.h>
+#include <linux/idr.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
-#include <linux/utsname.h>
-#include <linux/idr.h>
 #include <linux/slab.h>
+#include <linux/utsname.h>
 
 
 static int salt_grain_show(struct seq_file *m, void *v)
@@ -28,15 +28,13 @@ static int salt_grain_show(struct seq_file *m, void *v)
 	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
 	for (i = 0; i < salt_output->line_count; i++)
 		seq_printf(m, "%s\n", salt_output->lines[i]);
-//	seq_printf(m, "ololo\n");
 	return 0;
 }
 
 static int salt_grain_open(struct inode *inode, struct file *file)
 {
-	char *name = SALT_I(inode)->name;
-	pr_debug("saltfs: open grain '%s'\n", name);
-	return single_open(file, salt_grain_show, (void *)inode);
+	pr_debug("saltfs: open grain '%s'\n", SALT_I(inode)->name);
+	return single_open(file, salt_grain_show, NULL);
 }
 
 struct file_operations const salt_grain_fops = {

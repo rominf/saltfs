@@ -15,7 +15,7 @@ SALT_ROOT = "/srv/salt"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "berendt/opensuse-13.2-x86_64"
 
-  # config.vm.synced_folder ".", "/vagrant"
+  config.vm.synced_folder "../src/test", "/test"
   config.vm.synced_folder "../bin", "/module"
   config.vm.synced_folder "salt/states", SALT_ROOT
 

@@ -1,8 +1,9 @@
 #include "dir.h"
-#include "internal.h"
-#include "user.h"
-#include "string.h"
 #include "file.h"
+#include "function.h"
+#include "internal.h"
+#include "string.h"
+#include "user.h"
 
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
@@ -24,7 +25,6 @@
 
 DEFINE_SPINLOCK(salt_subdir_lock);
 
-//#define SALT_OUTPUT_DIR /tmp/
 #define SALT_OUTPUT_DIR /proc/
 #define SALT_OUTPUT_FILE "/proc/saltfs"
 //#define SALT_OUTPUT_FILE(WHAT) (SALT_OUTPUT_DIR ## WHAT)
@@ -61,8 +61,7 @@ static char *list_cmd_module(struct salt_inode const *si) {
 	char *minion = si->name;
 	pr_debug("saltfs: get list_cmd_module string; minion=%s\n", minion);
 	return vstrcat(SALT_FISH_SET_MINION(minion),
-			"__fish_salt_list_module",
-			NULL);
+			"__fish_salt_list_module", NULL);
 }
 
 static char *list_cmd_function(struct salt_inode const *si) {
@@ -71,16 +70,14 @@ static char *list_cmd_function(struct salt_inode const *si) {
 	pr_debug("saltfs: get list_cmd_funtion string; minion=%s, module=%s\n",
 			minion, module);
 	return vstrcat(SALT_FISH_SET_MINION(minion),
-			"__fish_salt_list_function_without_module ", module,
-			NULL);
+			"__fish_salt_list_function_without_module ", module, NULL);
 }
 
 static char *list_cmd_grain(struct salt_inode const *si) {
 	char *minion = si->parent->name;
 	pr_debug("saltfs: get list_cmd_grain string; minion=%s\n", minion);
 	return vstrcat(SALT_FISH_SET_MINION(minion),
-			"__fish_salt_list_grain",
-			NULL);
+			"__fish_salt_list_grain", NULL);
 }
 
 struct salt_next_item_spec const salt_module_next_items[] = {
@@ -92,7 +89,7 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "root",
 				.list_cmd = list_cmd_root,
-				.proc_fops = NULL,
+//				.fops = NULL,
 				.next_item_type = Salt_minion,
 				.next_items = NULL,
 				.mode = S_IFDIR,
@@ -100,7 +97,7 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "minion",
 				.list_cmd = list_cmd_minion,
-				.proc_fops = NULL,
+//				.proc_fops = NULL,
 				.next_item_type = Salt_module,
 				.next_items = NULL,
 				.mode = S_IFDIR,
@@ -108,7 +105,7 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "module",
 				.list_cmd = list_cmd_module,
-				.proc_fops = NULL,
+//				.proc_fops = NULL,
 				.next_item_type = Salt_function,
 				.next_items = salt_module_next_items,
 				.mode = S_IFDIR,
@@ -116,7 +113,7 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "function",
 				.list_cmd = list_cmd_function,
-				.proc_fops = NULL,
+				.fops = &salt_function_fops,
 				.next_item_type = Salt_NULL,
 				.next_items = NULL,
 				.mode = S_IFREG,
@@ -124,7 +121,7 @@ struct salt_item_spec const salt_items_spec[] = {
 		{
 				.name = "grain",
 				.list_cmd = list_cmd_grain,
-				.proc_fops = &salt_grain_fops,
+				.fops = &salt_grain_fops,
 				.next_item_type = Salt_NULL,
 				.next_items = NULL,
 				.mode = S_IFREG,
@@ -171,12 +168,15 @@ static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
 
 	inode->i_ino = get_next_ino();
 	inode->i_op = &simple_dir_inode_operations;
-	inode->i_fop = (salt_items_spec[type].proc_fops)?
-			salt_items_spec[type].proc_fops : &salt_dir_operations;
+	inode->i_fop = (salt_items_spec[type].fops)?
+			salt_items_spec[type].fops : &salt_dir_operations;
 	inode_init_owner(inode, NULL, salt_items_spec[type].mode | 0770);
 //	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
-	inode->i_flags |= S_IMMUTABLE;
+	if (salt_items_spec[type].mode == S_IFDIR)
+		inode->i_flags |= S_IMMUTABLE;
 	update_current_time(inode);
+//	if (salt_items_spec[type].mode == S_IFREG)
+//		inode->i_atime = CURRENT_TIME;
 
 	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d\n",
 			type, inode->i_ino, inode->i_mode);
