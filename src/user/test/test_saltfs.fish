@@ -2,13 +2,13 @@
 # vim: ai ts=2 sw=2 et sts=2
 
 function ls
-  command ls $argv
+  command ls $argv ^/dev/null
 end
 
 function suite_dpaste
 
   function setup
-    salt_manage full
+    salt_manage full >/dev/null
     set -g __fish_salt_extracted_minion minion
   end
 
@@ -37,6 +37,13 @@ function suite_dpaste
     assert (ls /salt/minion)
     assert (ls /salt/minion/grains)
     assert_equal (echo (__fish_salt_grain_read id)) (cat /salt/minion/grains/id)
+  end
+
+  function test_minion_function_with_args
+    refute (ls /salt/minion/test)
+    assert (ls /salt/minion)
+    assert (ls /salt/minion/test)
+    assert (printf 1 >/salt/minion/test/ping)
   end
 
 end

@@ -34,7 +34,7 @@ static int salt_grain_show(struct seq_file *m, void *v)
 static int salt_grain_open(struct inode *inode, struct file *file)
 {
 	pr_debug("saltfs: open grain '%s'\n", SALT_I(inode)->name);
-	return single_open(file, salt_grain_show, NULL);
+	return single_open(file, salt_grain_show, (void *)inode);
 }
 
 struct file_operations const salt_grain_fops = {
