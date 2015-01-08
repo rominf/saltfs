@@ -23,7 +23,7 @@ static struct super_operations const salt_super_ops = {
 		.put_super   = salt_put_super,
 };
 
-static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
+static int salt_fill_sb(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
 
@@ -47,6 +47,7 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 		pr_err("saltfs: cannot create root\n");
 		return -ENOMEM;
 	}
+	d_set_d_op(sb->s_root, &salt_dentry_operations);
 
 	pr_debug("saltfs: inited root inode\n");
 	salt_dir_entry_create(root, "/", Salt_root, root);
@@ -57,10 +58,10 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	return 0;
 }
 
-static struct dentry *saltfs_mount(struct file_system_type *type, int flags,
+static struct dentry *salt_mount(struct file_system_type *type, int flags,
 		char const *dev, void *data)
 {
-	struct dentry *const entry = mount_nodev(type, flags, data, saltfs_fill_sb);
+	struct dentry *const entry = mount_nodev(type, flags, data, salt_fill_sb);
 	if (IS_ERR(entry))
 		pr_err("saltfs: mounting failed\n");
 	else
@@ -68,21 +69,23 @@ static struct dentry *saltfs_mount(struct file_system_type *type, int flags,
 	return entry;
 }
 
-static void saltfs_kill_sb(struct super_block *sb)
+static void salt_kill_sb(struct super_block *sb)
 {
 	pr_debug("saltfs: trying to umount\n");
+//	kill_anon_super(sb);
 	generic_shutdown_super(sb);
+//	kill_litter_super(sb);
 	pr_info("saltfs: umounted\n");
 }
 
-static struct file_system_type saltfs_type = {
+static struct file_system_type salt_fs_type = {
 		.owner = THIS_MODULE,
 		.name = FS_NAME,
-		.mount = saltfs_mount,
-		.kill_sb = saltfs_kill_sb,
+		.mount = salt_mount,
+		.kill_sb = salt_kill_sb,
 };
 
-static int __init saltfs_init(void)
+static int __init salt_init(void)
 {
 	static unsigned long once;
 	int ret;
@@ -92,9 +95,8 @@ static int __init saltfs_init(void)
 		return 0;
 	}
 
-	ret = register_filesystem(&saltfs_type);
+	ret = register_filesystem(&salt_fs_type);
 	if (ret != 0) {
-//		saltfs_inode_cache_destroy();
 		pr_err("saltfs: cannot register filesystem\n");
 		return ret;
 	}
@@ -109,25 +111,23 @@ static int __init saltfs_init(void)
 	return 0;
 }
 
-static void __exit saltfs_shutdown(void)
+static void __exit salt_shutdown(void)
 {
 	int ret;
 	pr_debug("saltfs: trying to unload module\n");
-	ret = unregister_filesystem(&saltfs_type);
+	ret = unregister_filesystem(&salt_fs_type);
 	if (ret != 0)
 		pr_err("saltfs: cannot unregister filesystem\n");
 
 	pr_debug("saltfs: filesystem unregistered\n");
-//
-//	saltfs_inode_cache_destroy();
 
 	shutdown_proc();
 
 	pr_debug("saltfs: module unloaded\n");
 }
 
-module_init(saltfs_init);
-module_exit(saltfs_shutdown);
+module_init(salt_init);
+module_exit(salt_shutdown);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Roman Inflianskas");

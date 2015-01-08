@@ -146,17 +146,33 @@ void salt_dir_entry_create(struct inode *dir, char const *name,
 
 void salt_dir_entry_free(struct salt_dir_entry *sde)
 {
+	pr_debug("saltfs: free '%s'\n", sde->name);
 	kfree(sde);
 }
 
 static int dentry_delete(struct dentry const *de)
 {
+	pr_debug("saltfs: dentry_delete '%s'\n", SDE(de->d_inode)->name);
 	salt_dir_entry_free(SDE(de->d_inode));
 	return 1;
 }
 
-static struct dentry_operations d_op = {
+static void dentry_release(struct dentry *de)
+{
+	pr_debug("saltfs: dentry_release '%s'\n", SDE(de->d_inode)->name);
+	salt_dir_entry_free(SDE(de->d_inode));
+}
+
+static void dentry_prune(struct dentry *de)
+{
+	pr_debug("saltfs: dentry_prune '%s'\n", SDE(de->d_inode)->name);
+	salt_dir_entry_free(SDE(de->d_inode));
+}
+
+struct dentry_operations const salt_dentry_operations = {
 		.d_delete = dentry_delete,
+		.d_release = dentry_release,
+		.d_prune = dentry_prune,
 };
 
 void update_current_time(struct inode *inode)
@@ -169,6 +185,7 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 		enum salt_dir_entry_type const type)
 {
 	struct inode *inode;
+	umode_t mode = salt_items_spec[type].mode;
 
 	inode = new_inode(dir->i_sb);
 
@@ -181,9 +198,16 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 	inode->i_op = &simple_dir_inode_operations;
 	inode->i_fop = (salt_items_spec[type].fops)?
 			salt_items_spec[type].fops : &salt_dir_operations;
-	inode_init_owner(inode, NULL, salt_items_spec[type].mode | 0770);
-	if (salt_items_spec[type].mode == S_IFDIR)
-		inode->i_flags |= S_IMMUTABLE;
+	inode_init_owner(inode, NULL, mode | 0770);
+	switch (mode & S_IFMT) {
+		case S_IFREG:
+			break;
+		case S_IFDIR:
+			inode->i_flags |= S_IMMUTABLE;
+			inc_nlink(inode);
+			break;
+	}
+	inc_nlink(inode);
 	update_current_time(inode);
 
 	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d\n",
@@ -212,7 +236,7 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 		salt_dir_entry_create(inode, name, type, parent_inode);
 
 		d_add(child, inode);
-		d_set_d_op(child, &d_op);
+		d_set_d_op(child, &salt_dentry_operations);
 		pr_debug("saltfs: new dentry cached\n");
 	}
 

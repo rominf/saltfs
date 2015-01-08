@@ -27,6 +27,7 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 		enum salt_dir_entry_type const type);
 
 extern struct file_operations const salt_dir_operations;
+extern struct dentry_operations const salt_dentry_operations;
 extern struct salt_item_spec const salt_items_spec[];
 
 #endif /*__SALTFS_DIR_H__*/
