@@ -15,7 +15,7 @@ SALT_ROOT = "/srv/salt"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "berendt/opensuse-13.2-x86_64"
 
-  config.vm.synced_folder "../src/test", "/test"
+#  config.vm.synced_folder "../src/test", "/test"
   config.vm.synced_folder "../bin", "/module"
   config.vm.synced_folder "salt/states", SALT_ROOT
 
@@ -49,8 +49,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  salt.verbose = true
   end
   config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: SALT_ROOT + "/sshkey/host_id_rsa.pub"
-  config.vm.provision "file", source: "../src/user/salt_common.fish", destination: "/usr/share/fish/completions/salt_common.fish"
-  config.vm.provision "file", source: "../src/user/saltfs.fish", destination: "/usr/share/fish/completions/saltfs.fish"
+  config.vm.provision "file", source: "../src/user/completions/salt_common.fish", destination: "/usr/share/fish/completions/salt_common.fish"
+  config.vm.provision "file", source: "../src/user/completions/saltfs.fish", destination: "/usr/share/fish/completions/saltfs.fish"
   config.vm.provision "shell", inline: "sudo salt-call state.highstate"
 
   # Disable automatic box update checking. If you disable this, then
