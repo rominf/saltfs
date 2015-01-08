@@ -30,17 +30,17 @@ struct salt_dir_entry {
 	kuid_t uid;
 	kgid_t gid;
 	loff_t size;
-	u8 namelen;
+//	u8 namelen;
+	enum salt_dir_entry_type type;
+	struct salt_dir_entry *parent;
 	char name[];
 };
 
 struct salt_inode {
-	enum salt_dir_entry_type type;
 	struct salt_dir_entry *sde;
 	struct inode vfs_inode;
-	struct salt_inode *parent;
-	u8 namelen;
-	char *name;
+//	u8 namelen;
+//	char *name;
 };
 
 static inline struct salt_inode *SALT_I(const struct inode *inode)

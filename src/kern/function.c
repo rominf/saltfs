@@ -21,11 +21,11 @@ static ssize_t salt_function_write(struct file *file,
 		char const *buf, size_t count, loff_t *offset)
 {
 	struct inode *inode = file->f_inode;
-	struct salt_inode *si = SALT_I(inode);
+	struct salt_dir_entry *sde = SDE(inode);
 	int i, ino = inode->i_ino;
-	char const *minion = parent(si, Salt_minion)->name;
-	char const *module = parent(si, Salt_module)->name;
-	char const *function = parent(si, Salt_function)->name;
+	char const *minion = parent(sde, Salt_minion)->name;
+	char const *module = parent(sde, Salt_module)->name;
+	char const *function = parent(sde, Salt_function)->name;
 	char *cmd, *args = (char *)kcalloc(count + 1, sizeof(char), GFP_KERNEL);
 	for (i = 0; i < count; i++)
 		get_user(args[i], buf + i);
@@ -50,8 +50,8 @@ static int salt_function_show(struct seq_file *m, void *v)
 
 static int salt_function_open(struct inode *inode, struct file *file)
 {
-
-	pr_debug("saltfs: open function '%s', flags=%d\n", SALT_I(inode)->name, file->f_flags);
+	pr_debug("saltfs: open function '%s', flags=%d\n",
+			SDE(inode)->name, file->f_flags);
 	return single_open(file, salt_function_show, NULL);
 }
 

@@ -16,10 +16,10 @@
 static int salt_grain_show(struct seq_file *m, void *v)
 {
 	struct inode *inode = (struct inode *)(m->private);
-	struct salt_inode *si = SALT_I(inode);
+	struct salt_dir_entry *sde = SDE(inode);
 	int i, ino = inode->i_ino;
-	char const *grain = parent(si, Salt_grain)->name;
-	char const *minion = parent(si, Salt_minion)->name;
+	char const *grain = parent(sde, Salt_grain)->name;
+	char const *minion = parent(sde, Salt_minion)->name;
 	char *cmd = vstrcat(SALT_FISH_SET_MINION(minion),
 			"__fish_salt_grain_read ", grain, NULL);
 	pr_debug("saltfs: showing grain '%s', ino=%d, cmd='%s'\n", grain, ino, cmd);
@@ -33,7 +33,7 @@ static int salt_grain_show(struct seq_file *m, void *v)
 
 static int salt_grain_open(struct inode *inode, struct file *file)
 {
-	pr_debug("saltfs: open grain '%s'\n", SALT_I(inode)->name);
+	pr_debug("saltfs: open grain '%s'\n", SDE(inode)->name);
 	return single_open(file, salt_grain_show, (void *)inode);
 }
 

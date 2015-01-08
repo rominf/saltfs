@@ -25,7 +25,7 @@ static struct super_operations const salt_super_ops = {
 static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
-	struct salt_inode *ei;
+//	struct salt_inode *ei;
 
 	sb->s_flags |= MS_NODIRATIME | MS_NOSUID | MS_NOEXEC;
 	sb->s_blocksize = 1024;
@@ -35,8 +35,8 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	sb->s_op = &salt_super_ops;
 
 	root = new_inode(sb);
-	ei = SALT_I(root);
-	ei->type = Salt_root;
+//	ei = SALT_I(root);
+//	ei->type = Salt_root;
 	root->i_ino = SALT_ROOT_INO;
 	root->i_sb = sb;
 	root->i_op = &simple_dir_inode_operations;
@@ -50,8 +50,15 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 		return -ENOMEM;
 	}
 
-	salt_fill_salt_inode(root, "/", Salt_root, root);
-	salt_fill_dir(ei, sb->s_root, root->i_ino, Salt_root);
+	pr_debug("saltfs: inited root inode\n");
+
+	salt_dir_entry_create(root, "/", Salt_root, root);
+
+	pr_debug("saltfs: filled root salt_dir_entry\n");
+
+	salt_fill_dir(SDE(root), sb->s_root, root->i_ino, Salt_root);
+
+	pr_debug("saltfs: filled root directory\n");
 
 	return 0;
 }
