@@ -68,7 +68,8 @@ static int salt_function_show(struct seq_file *m, void *v)
 	char const *function = function_name(sde);
 	char *cmd = vstrcat(SALT_FISH_SET_MINION(minion),
 			"salt ", minion, " sys.doc ", function, NULL);
-	pr_debug("saltfs: showing function doc '%s', ino=%d, cmd='%s'\n", function, ino, cmd);
+	pr_debug("saltfs: showing function doc '%s', ino=%d, cmd='%s'\n",
+			function, ino, cmd);
 	salt_list(cmd, ino);
 	kfree(function);
 	kfree(cmd);
