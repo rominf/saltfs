@@ -19,13 +19,13 @@ static void salt_put_super(struct super_block *sb)
 
 static struct super_operations const salt_super_ops = {
 		.alloc_inode = salt_alloc_inode,
+		.drop_inode = generic_delete_inode,
 		.put_super   = salt_put_super,
 };
 
 static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 {
 	struct inode *root = NULL;
-//	struct salt_inode *ei;
 
 	sb->s_flags |= MS_NODIRATIME | MS_NOSUID | MS_NOEXEC;
 	sb->s_blocksize = 1024;
@@ -35,8 +35,6 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	sb->s_op = &salt_super_ops;
 
 	root = new_inode(sb);
-//	ei = SALT_I(root);
-//	ei->type = Salt_root;
 	root->i_ino = SALT_ROOT_INO;
 	root->i_sb = sb;
 	root->i_op = &simple_dir_inode_operations;
@@ -51,13 +49,9 @@ static int saltfs_fill_sb(struct super_block *sb, void *data, int silent)
 	}
 
 	pr_debug("saltfs: inited root inode\n");
-
 	salt_dir_entry_create(root, "/", Salt_root, root);
-
 	pr_debug("saltfs: filled root salt_dir_entry\n");
-
 	salt_fill_dir(SDE(root), sb->s_root, root->i_ino, Salt_root);
-
 	pr_debug("saltfs: filled root directory\n");
 
 	return 0;

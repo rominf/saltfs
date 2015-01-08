@@ -8,6 +8,7 @@
 #include <asm/uaccess.h>
 #include <linux/bitops.h>
 #include <linux/completion.h>
+#include <linux/dcache.h>
 #include <linux/errno.h>
 #include <linux/idr.h>
 #include <linux/init.h>
@@ -148,6 +149,16 @@ void salt_dir_entry_free(struct salt_dir_entry *sde)
 	kfree(sde);
 }
 
+static int dentry_delete(struct dentry const *de)
+{
+	salt_dir_entry_free(SDE(de->d_inode));
+	return 1;
+}
+
+static struct dentry_operations d_op = {
+		.d_delete = dentry_delete,
+};
+
 void update_current_time(struct inode *inode)
 {
 	inode->i_atime = (struct timespec){0, 0};
@@ -201,6 +212,7 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 		salt_dir_entry_create(inode, name, type, parent_inode);
 
 		d_add(child, inode);
+		d_set_d_op(child, &d_op);
 		pr_debug("saltfs: new dentry cached\n");
 	}
 

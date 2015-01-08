@@ -7,14 +7,14 @@ static struct kmem_cache *salt_inode_cachep;
 
 struct inode *salt_alloc_inode(struct super_block *sb)
 {
-	struct salt_inode *ei;
+	struct salt_inode *si;
 	struct inode *inode;
 
-	ei = (struct salt_inode *)kmem_cache_alloc(salt_inode_cachep, GFP_KERNEL);
-	if (!ei)
+	si = (struct salt_inode *)kmem_cache_alloc(salt_inode_cachep, GFP_KERNEL);
+	if (!si)
 		return NULL;
-	ei->sde = NULL;
-	inode = &ei->vfs_inode;
+	si->sde = NULL;
+	inode = &si->vfs_inode;
 	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME;
 	return inode;
 }

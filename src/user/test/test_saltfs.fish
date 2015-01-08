@@ -5,7 +5,7 @@ function ls
   command ls $argv ^/dev/null
 end
 
-function suite_dpaste
+function suite_saltfs
 
   function setup
     salt_manage full >/dev/null
