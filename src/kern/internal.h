@@ -7,19 +7,20 @@
 #include <linux/atomic.h>
 #include <linux/binfmts.h>
 
-#define NAME "saltfs"
+#define FS_NAME "saltfs"
 /* only root should be able to access saltfs */
 #define SALTFS_DEFAULT_MODE 0700
 
 #define SALT_ROOT_INO 1
 
 enum salt_dir_entry_type {
-	Salt_NULL = 0,
+	Salt_TYPE_NULL = 0,
 	Salt_root = 1,
 	Salt_minion = 2,
 	Salt_module = 3,
 	Salt_function = 4,
 	Salt_grain = 5,
+	Salt_TYPE_LAST = 6,
 };
 
 struct salt_dir_entry {

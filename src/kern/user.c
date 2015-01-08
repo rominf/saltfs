@@ -151,7 +151,7 @@ void init_proc(void)
 {
 	idr_init(&salt_output_idr);
 	pr_debug("saltfs: init proc started\n");
-	salt_proc_root = proc_mkdir(NAME, NULL);
+	salt_proc_root = proc_mkdir(FS_NAME, NULL);
 	pr_debug("saltfs: inited proc\n");
 }
 
@@ -159,7 +159,7 @@ void shutdown_proc(void)
 {
 	pr_debug("saltfs: shutdown proc started\n");
 
-	remove_proc_subtree(NAME, NULL);
+	remove_proc_subtree(FS_NAME, NULL);
 
 	pr_debug("saltfs: shutdown proc\n");
 }

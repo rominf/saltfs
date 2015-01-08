@@ -76,7 +76,7 @@ static void saltfs_kill_sb(struct super_block *sb)
 
 static struct file_system_type saltfs_type = {
 		.owner = THIS_MODULE,
-		.name = NAME,
+		.name = FS_NAME,
 		.mount = saltfs_mount,
 		.kill_sb = saltfs_kill_sb,
 };
