@@ -1,14 +1,19 @@
 #!/usr/bin/env fish
+# vim: ai ts=2 sw=2 et sts=2
 
-set salt_root "/salt"
+set -g __salt_manage_args umount rmmod insmod mount
 
-function show_help
-	echo -e "Usage:\n  ./manage umount rmmod insmod mount"
-	exit 0
+function salt_manage
+  set salt_root "/salt"
+
+  contains help $argv; or contains -- '--help' $argv; or contains -- '-h' $argv; and echo -e "Usage:\n  ./manage $__salt_manage_args"
+  contains umount $argv; and umount $salt_root
+  contains rmmod  $argv; and rmmod --force saltfs
+  contains insmod $argv; and insmod /module/saltfs.ko
+  contains mount  $argv; and mkdir -p $salt_root; and mount -t saltfs saltfs $salt_root
+  contains full   $argv; and salt_manage $__salt_manage_args
 end
-contains help $argv; or contains -- '--help' $argv; or contains -- '-h' $argv; and show_help
 
-contains umount $argv; umount $salt_root
-contains rmmod  $argv; rmmod --force saltfs
-contains insmod $argv; insmod /module/saltfs.ko
-contains mount  $argv; mkdir -p $salt_root; mount -t saltfs saltfs $salt_root
+if not status --is-interactive
+  salt_manage $argv
+end
