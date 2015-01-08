@@ -23,7 +23,7 @@ char *vstrcat(char const *first, ...)
 
 	va_end(argp);
 
-//	pr_debug("vstrcat: len=%zu", len);
+/*	pr_debug("vstrcat: len=%zu", len); */
 
 	retbuf = kmalloc(len + 1, GFP_KERNEL);
 
@@ -39,7 +39,7 @@ char *vstrcat(char const *first, ...)
 
 	va_end(argp);
 
-//	pr_debug("vstrcat: result=%s", retbuf);
+/*	pr_debug("vstrcat: result=%s", retbuf); */
 
 	return retbuf;
 }

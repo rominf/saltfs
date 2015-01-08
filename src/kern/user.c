@@ -20,8 +20,6 @@
 #define INT_MAX_STR_LENGTH 7
 #define SALT_OUTPUT_PROC_ROOT "/proc/saltfs/"
 
-//struct kmem_cache *salt_output_cachep;
-
 DEFINE_SPINLOCK(salt_idr_output_lock);
 
 struct salt_userspace_output *salt_output = NULL;
@@ -104,8 +102,6 @@ struct salt_userspace_output *init_proc_output(int const ino, char const *ino_st
 	idr_alloc(&salt_output_idr, result, ino, ino + 1, GFP_NOWAIT);
 	spin_unlock(&salt_idr_output_lock);
 	idr_preload_end();
-//	if (id < 0)
-//		error;
 	return result;
 }
 
@@ -115,7 +111,6 @@ int salt_list(char const salt_list_cmd[], int const ino)
 	char ino_str[INT_MAX_STR_LENGTH];
 	char *salt_list_cmd_full;
 	char *argv[] = {
-//			"/bin/sh",
 			"/usr/bin/fish",  /* Full path here */
 			"-c",
 			"",

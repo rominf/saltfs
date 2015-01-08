@@ -8,7 +8,7 @@
 #include <linux/binfmts.h>
 
 #define NAME "saltfs"
-// only root should be able to access saltfs
+/* only root should be able to access saltfs */
 #define SALTFS_DEFAULT_MODE 0700
 
 #define SALT_ROOT_INO 1

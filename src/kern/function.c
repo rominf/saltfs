@@ -56,7 +56,6 @@ static int salt_function_open(struct inode *inode, struct file *file)
 }
 
 struct file_operations const salt_function_fops = {
-//		.open       = simple_open,
 		.open       = salt_function_open,
 		.read       = seq_read,
 		.write      = salt_function_write,

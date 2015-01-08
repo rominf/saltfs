@@ -27,8 +27,6 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 
 #define SALT_OUTPUT_DIR /proc/
 #define SALT_OUTPUT_FILE "/proc/saltfs"
-//#define SALT_OUTPUT_FILE(WHAT) (SALT_OUTPUT_DIR ## WHAT)
-//#define SALT_OUTPUT_MINIONS_FILE SALT_OUTPUT_DIR ## minions
 
 
 static int const refresh_delay = 4;  /* in seconds */
@@ -150,7 +148,6 @@ static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
 		enum salt_dir_entry_type const type)
 {
 	struct inode *inode;
-//	umode_t mode = (type == Salt_NULL) ? S_IFREG : S_IFDIR;
 
 	inode = new_inode(dir->i_sb);
 
@@ -164,19 +161,15 @@ static struct inode *salt_create_inode(struct inode *dir, struct dentry *dentry,
 	inode->i_fop = (salt_items_spec[type].fops)?
 			salt_items_spec[type].fops : &salt_dir_operations;
 	inode_init_owner(inode, NULL, salt_items_spec[type].mode | 0770);
-//	inode->i_mode = S_IFDIR|S_IRUGO|S_IXUGO;
 	if (salt_items_spec[type].mode == S_IFDIR)
 		inode->i_flags |= S_IMMUTABLE;
 	update_current_time(inode);
-//	if (salt_items_spec[type].mode == S_IFREG)
-//		inode->i_atime = CURRENT_TIME;
 
 	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d\n",
 			type, inode->i_ino, inode->i_mode);
 
 out:
 	return inode;
-//	return -ENOENT;
 }
 
 bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
@@ -185,8 +178,6 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 	struct dentry *child;
 	struct qstr qname = QSTR_INIT(name, len);
 	struct inode *inode, *parent_inode = dir->d_inode;
-//	unsigned type;
-//	ino_t ino;
 
 	pr_debug("saltfs: salt_fill_cache_item: name='%s', i_ino: %zu; variables inited\n",
 			name, parent_inode->i_ino);
@@ -202,15 +193,6 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 		d_add(child, inode);
 		pr_debug("saltfs: new dentry cached\n");
 	}
-//	pr_debug("saltfs: salt_fill_cache_item: trying to init inode and etc.\n");
-//	inode = child->d_inode;
-//	pr_debug("saltfs: salt_fill_cache_item: inited inode %p\n", inode);
-//	ino = inode->i_ino;
-//	type = inode->i_mode >> 12;
-//	pr_debug("saltfs: salt_fill_cache_item: trying to dput child\n");
-//	dput(child);
-//
-//	pr_debug("saltfs: salt_fill_cache_item: before dir_emit\n");
 
 	return 0;
 }
