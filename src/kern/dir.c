@@ -85,6 +85,9 @@ struct salt_next_item_spec const salt_module_next_items[] = {
 
 struct salt_item_spec const salt_items_spec[] = {
 		{
+				.name = "NULL",
+		},
+		{
 				.name = "root",
 				.list_cmd = list_cmd_root,
 				.next_item_type = Salt_minion,
@@ -107,24 +110,18 @@ struct salt_item_spec const salt_items_spec[] = {
 				.name = "function",
 				.list_cmd = list_cmd_function,
 				.fops = &salt_function_fops,
-				.next_item_type = Salt_NULL,
 				.mode = S_IFREG,
 		},
 		{
 				.name = "grain",
 				.list_cmd = list_cmd_grain,
 				.fops = &salt_grain_fops,
-				.next_item_type = Salt_NULL,
 				.mode = S_IFREG,
 		},
 };
 
-void salt_fill_salt_inode(
-		struct inode *dir,
-		char const *name,
-		enum salt_dir_entry_type const type,
-		struct inode *parent
-)
+void salt_fill_salt_inode(struct inode *dir, char const *name,
+		enum salt_dir_entry_type const type, struct inode *parent)
 {
 	struct salt_inode *ei;
 	unsigned int len = strlen(name);
@@ -267,7 +264,6 @@ ssize_t salt_read_dir(struct file *filp, char __user *buf, size_t siz, loff_t *p
 	pr_debug("saltfs: read_dir\n");
 	return -EISDIR;
 }
-
 
 struct file_operations const salt_dir_operations = {
 		.open			= dcache_dir_open,

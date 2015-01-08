@@ -14,12 +14,12 @@
 #define SALT_ROOT_INO 1
 
 enum salt_dir_entry_type {
-	Salt_root = 0,
-	Salt_minion = 1,
-	Salt_module = 2,
-	Salt_function = 3,
-	Salt_grain = 4,
-	Salt_NULL = 42,
+	Salt_NULL = 0,
+	Salt_root = 1,
+	Salt_minion = 2,
+	Salt_module = 3,
+	Salt_function = 4,
+	Salt_grain = 5,
 };
 
 struct salt_dir_entry {
