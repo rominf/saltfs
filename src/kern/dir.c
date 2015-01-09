@@ -1,29 +1,13 @@
 #include "dir.h"
-#include "grain.h"
 #include "function.h"
-#include "internal.h"
+#include "grain.h"
 #include "string.h"
 #include "super.h"
 #include "user.h"
 
-#include <asm/uaccess.h>
-#include <linux/bitops.h>
-#include <linux/completion.h>
-#include <linux/dcache.h>
-#include <linux/errno.h>
 #include <linux/idr.h>
-#include <linux/init.h>
-#include <linux/mm.h>
-#include <linux/module.h>
-#include <linux/mount.h>
-#include <linux/namei.h>
-#include <linux/printk.h>
-#include <linux/proc_fs.h>
 #include <linux/slab.h>
-#include <linux/spinlock.h>
-#include <linux/stat.h>
-#include <linux/time.h>
-#include <linux/types.h>
+
 
 DEFINE_SPINLOCK(salt_subdir_lock);
 

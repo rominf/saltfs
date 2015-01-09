@@ -14,5 +14,8 @@ contains copy   $argv; and cp -f $src/saltfs.ko $root/bin/
 contains clean  $argv; and cd $src; and ./clean.fish; and cd -
 contains up     $argv; and vagrant up
 
-set cmd "fish -c 'sleep 0; /saltfs/manage" (printf "%s\n" $argv | grep -E '(umount|rmmod|insmod|mount)') "'"
-vagrant ssh -c "$cmd"
+set cmd (printf "%s\n" $argv | grep -E '(umount|rmmod|insmod|mount)' | xargs)
+if test -n $cmd
+	set cmd "fish -c 'sleep 0; /saltfs/manage" $cmd "'"
+	vagrant ssh -c "$cmd"
+end

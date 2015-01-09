@@ -1,17 +1,12 @@
 #include "dir.h"
 #include "file.h"
-#include "internal.h"
 #include "string.h"
 #include "user.h"
 
 #include <asm/uaccess.h>
-#include <linux/fs.h>
 #include <linux/idr.h>
-#include <linux/init.h>
-#include <linux/kernel.h>
 #include <linux/seq_file.h>
 #include <linux/slab.h>
-#include <linux/types.h>
 
 
 char const *function_name(struct salt_dir_entry const *sde)

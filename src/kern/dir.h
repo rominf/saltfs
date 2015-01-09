@@ -2,6 +2,7 @@
 #define __SALTFS_DIR_H__
 
 #include "internal.h"
+
 #include <linux/fs.h>
 
 struct salt_next_item_spec {

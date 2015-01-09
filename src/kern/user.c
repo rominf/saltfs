@@ -4,11 +4,10 @@
 */
 
 #include "internal.h"
-#include "user.h"
 #include "string.h"
+#include "user.h"
 
 #include <asm/uaccess.h>
-#include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>

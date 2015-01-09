@@ -1,15 +1,9 @@
 #include "dir.h"
-#include "internal.h"
 #include "inode.h"
 #include "saltfs.h"
-#include "super.h"
 #include "user.h"
 
-#include <linux/buffer_head.h>
-#include <linux/fs.h>
-#include <linux/init.h>
 #include <linux/module.h>
-#include <linux/slab.h>
 
 #define SILENT_UMOUNT
 
