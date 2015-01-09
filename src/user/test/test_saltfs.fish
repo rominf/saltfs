@@ -21,40 +21,40 @@ function suite_saltfs
 
   function setup
     salt_manage full >/dev/null
-    set minion vbox-opensuse
+    set -g minion vbox-opensuse
     set -g root /salt
     set -g minion_dir $root/$minion
     set -g __fish_salt_extracted_minion $minion
   end
 
-  function test_minion
+  function test_minions
     assert_equal (echo (__fish_salt_list_minion accepted)) (ls $root | grep -v '^result$')
   end
 
-  function test_minion_modules
+  function test_modules
     assert_equal (echo (__fish_salt_list_module)) (ls $minion_dir)
   end
 
-  function test_minion_functions
+  function test_functions
     refute (ls $minion_dir/acl)
     assert (ls $minion_dir)
     assert_equal (echo (__fish_salt_list_function_without_module acl)) (ls $minion_dir/acl)
   end
 
-  function test_minion_grains
+  function test_grains
     refute (ls $minion_dir/grains)
     assert (ls $minion_dir)
     assert_equal (echo (__fish_salt_list_grain | sort)) (ls $minion_dir/grains)
   end
 
-  function test_minion_grain_read
+  function test_grain_read
     refute (cat $minion_dir/grains/id)
     assert (ls $minion_dir)
     assert (ls $minion_dir/grains)
     assert_equal (echo (__fish_salt_grain_read id)) (cat $minion_dir/grains/id)
   end
 
-  function test_minion_grain_write
+  function test_grain_write
     refute (cat $minion_dir/grains/test)
     assert (ls $minion_dir)
     assert (ls $minion_dir/grains)
@@ -64,14 +64,21 @@ function suite_saltfs
     assert_equal 1 (cat $minion_dir/grains/test)
   end
 
-  function test_minion_function_without_args
+  function test_function_doc
+    refute (touch $minion_dir/test)
+    assert (ls $minion_dir)
+    assert (ls $minion_dir/test)
+    assert_equal (echo (salt $minion sys.doc test.ping | xargs)) (cat $minion_dir/test/ping | xargs)
+  end
+
+  function test_function_without_args
     refute (touch $minion_dir/test)
     assert (ls $minion_dir)
     assert (ls $minion_dir/test)
     assert (touch $minion_dir/test/ping)
   end
 
-  function test_minion_function_with_args
+  function test_function_with_args
     refute (ls $minion_dir/test)
     assert (ls $minion_dir)
     assert (ls $minion_dir/test)

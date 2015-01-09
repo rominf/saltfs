@@ -1,7 +1,7 @@
 #!/usr/bin/env fish
 
 function vm_ssh
-	while not vagrant ssh -c $argv
+	while not vagrant ssh
 		sleep 1
 	end
 end
