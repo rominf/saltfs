@@ -110,24 +110,20 @@ int salt_list(char const salt_list_cmd[], int const ino)
 	char ino_str[INT_MAX_STR_LENGTH];
 	char *salt_list_cmd_full;
 	char *argv[] = {
-			"/usr/bin/fish",  /* Full path here */
+			"/usr/bin/fish",  /* Full path here      */
 			"-c",
-			"",
+			"",               /* Placeholder for cmd */
 			NULL
 	};
 	static char *envp[] = {
-			"HOME=/",
-			"TERM=linux",
-			"PATH=/sbin:/bin:/usr/sbin:/usr/bin",
-			NULL
+			"HOME=/", "TERM=linux", "PATH=/sbin:/bin:/usr/sbin:/usr/bin", NULL
 	};
 	sprintf(ino_str, "%d", ino);
 	salt_list_cmd_full = vstrcat(
 			"complete --do-complete='salt_common --' >/dev/null; and ",
 			"complete --do-complete='saltfs      --' >/dev/null; and ",
 			salt_list_cmd,
-			" >"
-					SALT_OUTPUT_PROC_ROOT, ino_str,
+			" >" SALT_OUTPUT_PROC_ROOT, ino_str,
 			NULL);
 	argv[2] = salt_list_cmd_full;
 
@@ -149,16 +145,12 @@ int salt_list(char const salt_list_cmd[], int const ino)
 void init_proc(void)
 {
 	idr_init(&salt_output_idr);
-	pr_debug("saltfs: init proc started\n");
 	salt_proc_root = proc_mkdir(FS_NAME, NULL);
 	pr_debug("saltfs: inited proc\n");
 }
 
 void shutdown_proc(void)
 {
-	pr_debug("saltfs: shutdown proc started\n");
-
 	remove_proc_subtree(FS_NAME, NULL);
-
 	pr_debug("saltfs: shutdown proc\n");
 }

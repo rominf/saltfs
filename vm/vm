@@ -1,7 +1,7 @@
 #!/usr/bin/env fish
 
 function vm_ssh
-	while not vagrant ssh
+	while not vagrant ssh -c $argv
 		sleep 1
 	end
 end
@@ -44,5 +44,5 @@ end
 [ (count $argv) -gt 1 ]; and set vm_argv $argv[2..-1]
 
 contains fix $argv; or vm_check_not_created; and vm_fix
-contains ssh $argv;                          and vm_ssh
+contains ssh $argv;                          and vm_ssh $vm_argv
 contains reload $argv;                       and vm_reload $vm_argv
