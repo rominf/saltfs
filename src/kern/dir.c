@@ -3,6 +3,7 @@
 #include "function.h"
 #include "internal.h"
 #include "string.h"
+#include "super.h"
 #include "user.h"
 
 #include <asm/uaccess.h>
@@ -30,7 +31,7 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 #define SALT_OUTPUT_FILE "/proc/saltfs"
 
 
-extern int refresh_delay;
+static int const refresh_delay = 4;  /* in seconds */
 
 extern struct salt_item_spec const salt_items_spec[];
 

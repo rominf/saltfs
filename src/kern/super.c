@@ -14,9 +14,6 @@
 #define SILENT_UMOUNT
 
 
-int refresh_delay = 4;  /* in seconds */
-
-
 static void salt_put_super(struct super_block *sb)
 {
 	pr_debug("saltfs: super block destroyed\n");
@@ -63,34 +60,15 @@ static int salt_fill_sb(struct super_block *sb, void *data, int silent)
 	return 0;
 }
 
-static int salt_parse_options(char *options)
-{
-	int err = 1;
-	if (options[0] != '\0')
-		err = (sscanf(options, "%d", &refresh_delay) == 1)? 1 : 0;
-	if (err != 1)
-		pr_err("saltfs: failed to parse mount options\n");
-	return err;
-}
-
 static struct dentry *salt_mount(struct file_system_type *type, int flags,
 		char const *dev, void *data)
 {
 	struct dentry *entry;
 	int err;
-//	if (!(flags & MS_KERNMOUNT)) {
-//		if (!capable(CAP_SYS_ADMIN))
-//			err = -EPERM;
-//			return ERR_PTR(err);
-//	}
 	entry = mount_nodev(type, flags, data, salt_fill_sb);
 	if (IS_ERR(entry)) {
 		pr_err("saltfs: mounting failed\n");
 		return entry;
-	}
-	err = salt_parse_options(data);
-	if (IS_ERR(entry)) {
-		return ERR_PTR(err);
 	}
 	pr_info("saltfs: mounted\n");
 	return entry;
