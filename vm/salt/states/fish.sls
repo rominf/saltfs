@@ -10,6 +10,9 @@ fish:
 terminfo:
   pkg.installed
 
+man:
+  pkg.installed
+
 root:
   user.present:
     - shell: /usr/bin/fish

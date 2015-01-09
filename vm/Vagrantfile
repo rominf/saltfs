@@ -3,7 +3,8 @@
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = "2"
-MASTER_IP = "192.168.0.2"
+# MASTER_IP = "192.168.56.2"
+MASTER_IP = "10.10.0.2"
 SALT_ROOT = "/srv/salt"
 
 # 1. Comment all config.vm lines
@@ -27,7 +28,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.ssh.pty = 'true'
 
   # config.vm.network "private_network", type: "dhcp"
-  config.vm.network "private_network", ip: MASTER_IP
+  config.vm.network "private_network", ip: MASTER_IP, virtualbox__intnet: "intnet"
 
   config.vm.provision :shell, inline: '
 #	  echo "export TERM=vt100" > /etc/profile.d/term.sh
@@ -42,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  salt.minion_pub = "salt/key/minion.pub"
 	  salt.master_key = "salt/key/master.pem"
 	  salt.master_pub = "salt/key/master.pub"
-	  salt.bootstrap_options = " -A " + MASTER_IP + " -i " + "minion"
+	  salt.bootstrap_options = " -A " + MASTER_IP + " -i " + "vbox-opensuse"
 	  salt.install_master = true
 	  salt.seed_master = {minion: salt.minion_pub}
       salt.bootstrap_script = "salt/bootstrap.sh"
