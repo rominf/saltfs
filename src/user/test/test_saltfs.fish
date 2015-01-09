@@ -76,6 +76,7 @@ function suite_saltfs
     assert (ls $minion_dir)
     assert (ls $minion_dir/test)
     assert (touch $minion_dir/test/ping)
+    assert_equal (echo (salt $minion test.ping | xargs)) (cat $root/result | xargs)
   end
 
   function test_function_with_args
