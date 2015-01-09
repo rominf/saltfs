@@ -39,6 +39,16 @@ function suite_saltfs
     assert_equal (echo (__fish_salt_grain_read id)) (cat /salt/minion/grains/id)
   end
 
+  function test_minion_grain_write
+    refute (cat /salt/minion/grains/test)
+    assert (ls /salt/minion)
+    assert (ls /salt/minion/grains)
+    assert (printf 0 >/salt/minion/grains/test)
+    assert_equal 0 (cat /salt/minion/grains/test)
+    assert (printf 1 >/salt/minion/grains/test)
+    assert_equal 1 (cat /salt/minion/grains/test)
+  end
+
   function test_minion_grain_rm
     refute (rm /salt/minion/grains/test)
     assert (ls /salt/minion)
