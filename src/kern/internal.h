@@ -15,7 +15,8 @@ enum salt_dir_entry_type {
 	Salt_module = 3,
 	Salt_function = 4,
 	Salt_grain = 5,
-	Salt_TYPE_LAST = 6,
+	Salt_result = 6,
+	Salt_TYPE_LAST = 7,
 };
 
 struct salt_dir_entry {
@@ -36,7 +37,8 @@ static inline struct salt_inode *SALT_I(const struct inode *inode)
 
 static inline struct salt_dir_entry *SDE(const struct inode *inode)
 {
-	return SALT_I(inode)->sde;
+	return (inode)? SALT_I(inode)->sde : NULL;
+
 }
 
 #endif /*__SALTFS_INTERNAL_H__*/

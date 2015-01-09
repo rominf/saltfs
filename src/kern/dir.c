@@ -1,15 +1,14 @@
 #include "dir.h"
 #include "function.h"
 #include "grain.h"
+#include "result.h"
 #include "string.h"
 #include "super.h"
 #include "user.h"
 
 #include <linux/idr.h>
 #include <linux/slab.h>
-
-
-DEFINE_SPINLOCK(salt_subdir_lock);
+#include <linux/types.h>
 
 #define SALT_OUTPUT_DIR /proc/
 #define SALT_OUTPUT_FILE "/proc/saltfs"
@@ -22,19 +21,10 @@ extern struct salt_item_spec const salt_items_spec[];
 struct salt_dir_entry const *parent(struct salt_dir_entry const *sde,
 		enum salt_dir_entry_type const type)
 {
-	while (sde->type != type)
+	while (sde && sde->type != type)
 		sde = sde->parent;
 	return sde;
 }
-
-//salt_state const *state(struct salt_inode const *si)
-//{
-//	salt_state *result = (salt_state *)kmalloc(sizeof(salt_state), GFP_KERNEL);
-//	while (si->type != Salt_TYPE_NULL) {
-//		result[si->type] = si->name;
-//	}
-//	return result;
-//}
 
 static char *list_cmd_root(struct salt_dir_entry const *sde) {
 	pr_debug("saltfs: get list_cmd_root string\n");
@@ -110,6 +100,11 @@ struct salt_item_spec const salt_items_spec[] = {
 				.iops = &salt_grain_iops,
 				.mode = S_IFREG,
 		},
+		{
+				.name = "result",
+				.fops = &salt_result_fops,
+				.mode = S_IFREG,
+		}
 };
 
 
@@ -186,7 +181,6 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 			salt_items_spec[type].fops : &salt_dir_operations;
 	if (salt_items_spec[type].iops) {
 		pr_debug("saltfs: set iops\n");
-//		pr_debug("saltfs: may_delete=%d\n", may_delete(dir, dentry, false));
 		inode->i_op = salt_items_spec[type].iops;
 	}
 	inode_init_owner(inode, NULL, mode | 0770);
@@ -195,11 +189,10 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 			inode->i_flags |= O_RDWR | O_CREAT;
 			break;
 		case S_IFDIR:
-//			inode->i_flags |= S_IMMUTABLE;
+			inode->i_flags |= S_IMMUTABLE;
 			inc_nlink(inode);
 			break;
 	}
-//	inc_nlink(inode);
 	update_current_time(inode);
 
 	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d, i_flags=%ul\n",
@@ -230,8 +223,6 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 		d_add(child, inode);
 		d_set_d_op(child, &salt_dentry_operations);
 		pr_debug("saltfs: new dentry cached\n");
-//	} else {
-//		d_walk(child, child, &d_put_children, NULL);
 	}
 
 	return 0;
@@ -243,7 +234,7 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	int i = 0;
 	char *next_item_list_cmd;
 	char *salt_item;
-	struct salt_userspace_output *salt_output;
+	struct salt_userspace_output const *salt_output;
 	struct salt_next_item_spec const *next_item = salt_items_spec[type].next_items;
 	enum salt_dir_entry_type next_item_type;
 
@@ -267,7 +258,7 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	salt_list(next_item_list_cmd, ino);
 	kfree(next_item_list_cmd);
 
-	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
+	salt_output = (struct salt_userspace_output const *)idr_find(&salt_output_idr, ino);
 	for (i = 0; i < salt_output->line_count; i++) {
 		salt_item = salt_output->lines[i];
 		salt_fill_cache_item(dir, salt_item, strlen(salt_item), next_item_type);

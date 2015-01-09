@@ -9,6 +9,8 @@
 #include <linux/slab.h>
 
 
+int salt_last_result_ino = 0;
+
 char const *function_name(struct salt_dir_entry const *sde)
 {
 	return vstrcat(parent(sde, Salt_module)->name, ".",
@@ -25,6 +27,7 @@ int salt_function_call(char const *minion, char const *function, char const *arg
 	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
 	for (i = 0; i < salt_output->line_count; i++)
 		pr_info("saltfs: result: %s\n", salt_output->lines[i]);
+	salt_last_result_ino = ino;
 	return 0;
 }
 

@@ -27,6 +27,8 @@ void salt_dir_entry_create(struct inode *dir, char const *name,
 		enum salt_dir_entry_type const type, struct inode *parent);
 void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino,
 		enum salt_dir_entry_type const type);
+bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
+		enum salt_dir_entry_type const type);
 
 extern struct file_operations const salt_dir_operations;
 extern struct dentry_operations const salt_dentry_operations;

@@ -46,10 +46,12 @@ static int salt_fill_sb(struct super_block *sb, void *data, int silent)
 	d_set_d_op(sb->s_root, &salt_dentry_operations);
 
 	pr_debug("saltfs: inited root inode\n");
-	salt_dir_entry_create(root, "/", Salt_root, root);
+	salt_dir_entry_create(root, "/", Salt_root, NULL);
 	pr_debug("saltfs: filled root salt_dir_entry\n");
 	salt_fill_dir(SDE(root), sb->s_root, root->i_ino, Salt_root);
 	pr_debug("saltfs: filled root directory\n");
+	pr_debug("saltfs: creating 'result' file\n");
+	salt_fill_cache_item(sb->s_root, "result", 6, Salt_result);
 
 	return 0;
 }

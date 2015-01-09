@@ -28,7 +28,7 @@ function suite_saltfs
   end
 
   function test_minion
-    assert_equal (echo (__fish_salt_list_minion accepted)) (ls $root)
+    assert_equal (echo (__fish_salt_list_minion accepted)) (ls $root | grep -v '^result$')
   end
 
   function test_minion_modules
