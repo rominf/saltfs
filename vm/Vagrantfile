@@ -43,7 +43,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	  salt.master_pub = "salt/key/master.pub"
 	  salt.bootstrap_options = " -A " + MASTER_IP + " -i " + "vbox-opensuse"
 	  salt.install_master = true
-	  salt.seed_master = {minion: salt.minion_pub}
+	  salt.seed_master = {'vbox-opensuse' => 'salt.minion_pub'}
       salt.bootstrap_script = "salt/bootstrap.sh"
 	  salt.verbose = true
   end
