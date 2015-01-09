@@ -1,4 +1,5 @@
 #include "dir.h"
+#include "file.h"
 #include "internal.h"
 #include "string.h"
 #include "user.h"
@@ -8,7 +9,6 @@
 #include <linux/idr.h>
 #include <linux/init.h>
 #include <linux/kernel.h>
-#include <linux/proc_fs.h>
 #include <linux/seq_file.h>
 #include <linux/slab.h>
 #include <linux/types.h>
@@ -65,7 +65,7 @@ static int salt_function_show(struct seq_file *m, void *v)
 {
 	struct inode *inode = (struct inode *)(m->private);
 	struct salt_dir_entry *sde = SDE(inode);
-	int i, ino = inode->i_ino;
+	int ino = inode->i_ino;
 	char const *minion = parent(sde, Salt_minion)->name;
 	char const *function = function_name(sde);
 	char *cmd = vstrcat(SALT_FISH_SET_MINION(minion),
@@ -75,9 +75,7 @@ static int salt_function_show(struct seq_file *m, void *v)
 	salt_list(cmd, ino);
 	kfree(function);
 	kfree(cmd);
-	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
-	for (i = 0; i < salt_output->line_count; i++)
-		seq_printf(m, "%s\n", salt_output->lines[i]);
+	salt_output_show_ino(m, ino);
 	return 0;
 }
 

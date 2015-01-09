@@ -246,6 +246,8 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 		d_add(child, inode);
 		d_set_d_op(child, &salt_dentry_operations);
 		pr_debug("saltfs: new dentry cached\n");
+//	} else {
+//		d_walk(child, child, &d_put_children, NULL);
 	}
 
 	return 0;

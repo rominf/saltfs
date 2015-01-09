@@ -64,7 +64,6 @@ static struct dentry *salt_mount(struct file_system_type *type, int flags,
 		char const *dev, void *data)
 {
 	struct dentry *entry;
-	int err;
 	entry = mount_nodev(type, flags, data, salt_fill_sb);
 	if (IS_ERR(entry)) {
 		pr_err("saltfs: mounting failed\n");
