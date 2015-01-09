@@ -3,7 +3,6 @@
 #include "grain.h"
 #include "result.h"
 #include "string.h"
-#include "super.h"
 #include "user.h"
 
 #include <linux/idr.h>

@@ -1,10 +1,13 @@
 #include "dir.h"
 #include "inode.h"
-#include "saltfs.h"
 #include "user.h"
 
 #include <linux/module.h>
 
+#define SALTFS_MAGIC 0x5A175A17
+#define SALTFS_BLOCKSIZE 1024
+#define SALTFS_BLOCKSIZE_BITS 10
+#define SALTFS_TIME_GRAN 1
 #define SILENT_UMOUNT
 
 
@@ -24,9 +27,9 @@ static int salt_fill_sb(struct super_block *sb, void *data, int silent)
 	struct inode *root = NULL;
 
 	sb->s_flags |= MS_NODIRATIME | MS_NOSUID | MS_NOEXEC;
-	sb->s_blocksize = 1024;
-	sb->s_blocksize_bits = 10;
-	sb->s_time_gran = 1;
+	sb->s_blocksize = SALTFS_BLOCKSIZE;
+	sb->s_blocksize_bits = SALTFS_BLOCKSIZE_BITS;
+	sb->s_time_gran = SALTFS_TIME_GRAN;
 	sb->s_magic = SALTFS_MAGIC;
 	sb->s_op = &salt_super_ops;
 

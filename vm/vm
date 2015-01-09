@@ -25,7 +25,7 @@ function vm_fix
 
 		vagrant halt --force
 		rm -rf .vagrant/
-		uncpbak .vagrant.20150106_204039.bak/
+		uncpbak .vagrant.20150109_183211.bak/
 		vagrant up
 	end
 
