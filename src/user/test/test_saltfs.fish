@@ -1,74 +1,89 @@
 #!/usr/bin/env fish
 # vim: ai ts=2 sw=2 et sts=2
 
+function cat
+  command cat $argv ^/dev/null
+end
+
 function ls
   command ls $argv ^/dev/null
+end
+
+function touch
+  command touch $argv ^/dev/null
+end
+
+function rm
+  command rm $argv ^/dev/null
 end
 
 function suite_saltfs
 
   function setup
     salt_manage full >/dev/null
-    set -g __fish_salt_extracted_minion minion
+    set minion vbox-opensuse
+    set -g root /salt
+    set -g minion_dir $root/$minion
+    set -g __fish_salt_extracted_minion $minion
   end
 
   function test_minion
-    assert_equal (echo (__fish_salt_list_minion accepted)) (ls /salt)
+    assert_equal (echo (__fish_salt_list_minion accepted)) (ls $root)
   end
 
   function test_minion_modules
-    assert_equal (echo (__fish_salt_list_module)) (ls /salt/minion)
+    assert_equal (echo (__fish_salt_list_module)) (ls $minion_dir)
   end
 
   function test_minion_functions
-    refute (ls /salt/minion/acl)
-    assert (ls /salt/minion)
-    assert_equal (echo (__fish_salt_list_function_without_module acl)) (ls /salt/minion/acl)
+    refute (ls $minion_dir/acl)
+    assert (ls $minion_dir)
+    assert_equal (echo (__fish_salt_list_function_without_module acl)) (ls $minion_dir/acl)
   end
 
   function test_minion_grains
-    refute (ls /salt/minion/grains)
-    assert (ls /salt/minion)
-    assert_equal (echo (__fish_salt_list_grain | sort)) (ls /salt/minion/grains)
+    refute (ls $minion_dir/grains)
+    assert (ls $minion_dir)
+    assert_equal (echo (__fish_salt_list_grain | sort)) (ls $minion_dir/grains)
   end
 
   function test_minion_grain_read
-    refute (cat /salt/minion/grains/id)
-    assert (ls /salt/minion)
-    assert (ls /salt/minion/grains)
-    assert_equal (echo (__fish_salt_grain_read id)) (cat /salt/minion/grains/id)
+    refute (cat $minion_dir/grains/id)
+    assert (ls $minion_dir)
+    assert (ls $minion_dir/grains)
+    assert_equal (echo (__fish_salt_grain_read id)) (cat $minion_dir/grains/id)
   end
 
   function test_minion_grain_write
-    refute (cat /salt/minion/grains/test)
-    assert (ls /salt/minion)
-    assert (ls /salt/minion/grains)
-    assert (printf 0 >/salt/minion/grains/test)
-    assert_equal 0 (cat /salt/minion/grains/test)
-    assert (printf 1 >/salt/minion/grains/test)
-    assert_equal 1 (cat /salt/minion/grains/test)
+    refute (cat $minion_dir/grains/test)
+    assert (ls $minion_dir)
+    assert (ls $minion_dir/grains)
+    assert (printf 0 >$minion_dir/grains/test)
+    assert_equal 0 (cat $minion_dir/grains/test)
+    assert (printf 1 >$minion_dir/grains/test)
+    assert_equal 1 (cat $minion_dir/grains/test)
   end
 
   function test_minion_grain_rm
-    refute (rm /salt/minion/grains/test)
-    assert (ls /salt/minion)
-    assert (ls /salt/minion/grains)
-    assert (rm /salt/minion/grains/test)
-    refute (ls /salt/minion/grains/test)
+    refute (rm $minion_dir/grains/test)
+    assert (ls $minion_dir)
+    assert (ls $minion_dir/grains)
+    assert (rm $minion_dir/grains/test)
+    refute (ls $minion_dir/grains/test)
   end
 
   function test_minion_function_without_args
-    refute (touch /salt/minion/test)
-    assert (ls /salt/minion)
-    assert (ls /salt/minion/test)
-    assert (touch /salt/minion/test/ping)
+    refute (touch $minion_dir/test)
+    assert (ls $minion_dir)
+    assert (ls $minion_dir/test)
+    assert (touch $minion_dir/test/ping)
   end
 
   function test_minion_function_with_args
-    refute (ls /salt/minion/test)
-    assert (ls /salt/minion)
-    assert (ls /salt/minion/test)
-    assert (printf 1 >/salt/minion/test/arg)
+    refute (ls $minion_dir/test)
+    assert (ls $minion_dir)
+    assert (ls $minion_dir/test)
+    assert (printf 1 >$minion_dir/test/arg)
   end
 
 end

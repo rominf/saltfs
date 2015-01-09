@@ -31,8 +31,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network "private_network", ip: MASTER_IP, virtualbox__intnet: "intnet"
 
   config.vm.provision :shell, inline: '
-#	  echo "export TERM=vt100" > /etc/profile.d/term.sh
-#	  sed -i "s/#file_client.*/file_client: local/g" /etc/salt/minion
 	  sudo rsync -a /home/vagrant/.ssh/ /root/.ssh
 	  sudo chown root -R /root/.ssh
   '
