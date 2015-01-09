@@ -64,14 +64,6 @@ function suite_saltfs
     assert_equal 1 (cat $minion_dir/grains/test)
   end
 
-  function test_minion_grain_rm
-    refute (rm $minion_dir/grains/test)
-    assert (ls $minion_dir)
-    assert (ls $minion_dir/grains)
-    assert (rm $minion_dir/grains/test)
-    refute (ls $minion_dir/grains/test)
-  end
-
   function test_minion_function_without_args
     refute (touch $minion_dir/test)
     assert (ls $minion_dir)

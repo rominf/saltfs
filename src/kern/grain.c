@@ -55,14 +55,3 @@ struct file_operations const salt_grain_fops = {
 		.llseek     = seq_lseek,
 		.release    = single_release,
 };
-
-int salt_grain_unlink(struct inode *inode, struct dentry *de)
-{
-	pr_debug("saltfs: unlink grain '%s'\n", SDE(inode)->name);
-	salt_function_call_parent_minion(inode, "grains.remove", SDE(inode)->name);
-	return simple_unlink(inode, de);
-}
-
-struct inode_operations const salt_grain_iops = {
-		.unlink     = salt_grain_unlink,
-};

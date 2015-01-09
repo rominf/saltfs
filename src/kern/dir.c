@@ -97,7 +97,6 @@ struct salt_item_spec const salt_items_spec[] = {
 				.name = "grain",
 				.list_cmd = list_cmd_grain,
 				.fops = &salt_grain_fops,
-				.iops = &salt_grain_iops,
 				.mode = S_IFREG,
 		},
 		{
@@ -179,10 +178,6 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 	inode->i_op = &simple_dir_inode_operations;
 	inode->i_fop = (salt_items_spec[type].fops)?
 			salt_items_spec[type].fops : &salt_dir_operations;
-	if (salt_items_spec[type].iops) {
-		pr_debug("saltfs: set iops\n");
-		inode->i_op = salt_items_spec[type].iops;
-	}
 	inode_init_owner(inode, NULL, mode | 0770);
 	switch (mode & S_IFMT) {
 		case S_IFREG:
