@@ -30,7 +30,7 @@ DEFINE_SPINLOCK(salt_subdir_lock);
 #define SALT_OUTPUT_FILE "/proc/saltfs"
 
 
-static int const refresh_delay = 4;  /* in seconds */
+extern int refresh_delay;
 
 extern struct salt_item_spec const salt_items_spec[];
 
