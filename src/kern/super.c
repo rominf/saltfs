@@ -74,6 +74,7 @@ static struct dentry *salt_mount(struct file_system_type *type, int flags,
 
 static void salt_kill_sb(struct super_block *sb)
 {
+	salt_output_free_all();
 #ifndef SILENT_UMOUNT
 	generic_shutdown_super(sb);
 #endif

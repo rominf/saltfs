@@ -49,6 +49,20 @@ void salt_output_free(struct salt_userspace_output *salt_output)
 	}
 }
 
+void salt_output_free_ino(int const ino)
+{
+	salt_output_free(idr_find(&salt_output_idr, ino));
+	idr_remove(&salt_output_idr, ino);
+}
+
+void salt_output_free_all()
+{
+	void *entry;
+	int ino;
+	idr_for_each_entry(&salt_output_idr, entry, ino)
+		salt_output_free_ino(ino);
+}
+
 static void proc_input_flush_line(char *line, unsigned int const line_length,
 		struct salt_userspace_output *salt_output)
 {
@@ -137,10 +151,10 @@ int salt_list(char const salt_list_cmd[], int const ino)
 
 	salt_output = (struct salt_userspace_output *)
 			idr_find(&salt_output_idr, ino);
-	if (!salt_output) {
+	if (!salt_output)
 		proc_create(ino_str, 0, salt_proc_root, &proc_fops);
-	}
-	salt_output_free(salt_output);
+	else
+		salt_output_free_ino(ino);
 	salt_output = init_proc_output(ino, ino_str);
 
 	pr_debug("saltfs: executing usermodehelper; argv: '%s', '%s', '%s'\n",

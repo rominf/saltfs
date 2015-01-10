@@ -16,6 +16,7 @@ extern struct salt_userspace_output *salt_output;
 extern struct idr salt_output_idr;
 
 int salt_list(char const salt_list_cmd[], int const ino);
+void salt_output_free_all(void);
 void init_proc(void);
 void shutdown_proc(void);
 
