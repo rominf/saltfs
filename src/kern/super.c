@@ -18,7 +18,7 @@ static void salt_put_super(struct super_block *sb)
 
 static struct super_operations const salt_super_ops = {
 		.alloc_inode = salt_alloc_inode,
-		.drop_inode = generic_delete_inode,
+		.drop_inode  = generic_delete_inode,
 		.put_super   = salt_put_super,
 };
 
@@ -93,7 +93,8 @@ static int __init salt_init(void)
 	int ret;
 
 	if (test_and_set_bit(0, &once)) {
-		pr_err("saltfs: filesystem is already mounted, refusing to mount it second time\n");
+		pr_err("saltfs: filesystem is already mounted, "
+				"refusing to mount it second time\n");
 		return 0;
 	}
 

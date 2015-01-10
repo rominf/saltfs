@@ -27,10 +27,10 @@ struct idr salt_output_idr;
 
 struct salt_userspace_output *salt_output_alloc(void)
 {
-	struct salt_userspace_output *result =
-			(struct salt_userspace_output *)kmalloc(sizeof(struct salt_userspace_output), GFP_KERNEL);
-	result->lines = (char **)kcalloc(SALT_OUTPUT_MAX_LINE_COUNT,
-			sizeof(char *), GFP_KERNEL);
+	struct salt_userspace_output *result = (struct salt_userspace_output *)
+			kmalloc(sizeof(struct salt_userspace_output), GFP_KERNEL);
+	result->lines = (char **)
+			kcalloc(SALT_OUTPUT_MAX_LINE_COUNT, sizeof(char *), GFP_KERNEL);
 	result->line_count = 0;
 	pr_debug("saltfs: allocated salt_output\n");
 	return result;
@@ -57,24 +57,31 @@ static void proc_input_flush_line(char *line, unsigned int const line_length,
 		salt_output->lines[salt_output->line_count] =
 				(char *)kcalloc(line_length + 1, sizeof(char), GFP_KERNEL);
 		salt_output->lines[salt_output->line_count] =
-				strncpy(salt_output->lines[salt_output->line_count], line, line_length);
-		pr_debug("saltfs: read '%s'\n", salt_output->lines[salt_output->line_count]);
+				strncpy(salt_output->lines[salt_output->line_count], line,
+						line_length);
+		pr_debug("saltfs: read '%s'\n",
+				salt_output->lines[salt_output->line_count]);
 		salt_output->line_count++;
 	}
 }
 
-static ssize_t proc_write(struct file *filp, const char *buff, size_t len, loff_t *off)
+static ssize_t proc_write(struct file *filp, const char *buff, size_t len,
+		loff_t *off)
 {
 	int i, ino;
 	unsigned int line_length;
 	char *line;
 	struct salt_userspace_output *salt_output;
 	sscanf(filp->f_path.dentry->d_name.name, "%d", &ino);
-	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
-	line = (char *)kcalloc(SALT_OUTPUT_MAX_LINE_LENGTH, sizeof(char), GFP_KERNEL);
+	salt_output = (struct salt_userspace_output *)
+			idr_find(&salt_output_idr, ino);
+	line = (char *)
+			kcalloc(SALT_OUTPUT_MAX_LINE_LENGTH, sizeof(char), GFP_KERNEL);
 	line_length = 0;
-	pr_debug("saltfs: start reading from proc %s%d\n", SALT_OUTPUT_PROC_ROOT, ino);
-	for (i = 0; line_length < SALT_OUTPUT_MAX_LINE_LENGTH - 1 && i < len; i++, line_length++) {
+	pr_debug("saltfs: start reading from proc %s%d\n",
+			SALT_OUTPUT_PROC_ROOT, ino);
+	for (i = 0; line_length < SALT_OUTPUT_MAX_LINE_LENGTH - 1 && i < len;
+		 i++, line_length++) {
 		get_user(line[line_length], buff + i);
 		if (line[line_length] == '\n') {
 			proc_input_flush_line(line, line_length, salt_output);
@@ -88,12 +95,13 @@ static ssize_t proc_write(struct file *filp, const char *buff, size_t len, loff_
 }
 
 static const struct file_operations proc_fops = {
-		.owner = THIS_MODULE,
-		.write = proc_write,
+		.owner  = THIS_MODULE,
+		.write  = proc_write,
 		.llseek = seq_lseek,
 };
 
-struct salt_userspace_output *init_proc_output(int const ino, char const *ino_str)
+struct salt_userspace_output *init_proc_output(int const ino,
+		char const *ino_str)
 {
 	struct salt_userspace_output *result = salt_output_alloc();
 	idr_preload(GFP_KERNEL);
@@ -127,7 +135,8 @@ int salt_list(char const salt_list_cmd[], int const ino)
 			NULL);
 	argv[2] = salt_list_cmd_full;
 
-	salt_output = (struct salt_userspace_output *)idr_find(&salt_output_idr, ino);
+	salt_output = (struct salt_userspace_output *)
+			idr_find(&salt_output_idr, ino);
 	if (!salt_output) {
 		proc_create(ino_str, 0, salt_proc_root, &proc_fops);
 	}

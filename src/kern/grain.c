@@ -49,9 +49,9 @@ static ssize_t salt_grain_write(struct file *file,
 }
 
 struct file_operations const salt_grain_fops = {
-		.open       = salt_grain_open,
-		.read       = seq_read,
-		.write      = salt_grain_write,
-		.llseek     = seq_lseek,
-		.release    = single_release,
+		.open    = salt_grain_open,
+		.read    = seq_read,
+		.write   = salt_grain_write,
+		.llseek  = seq_lseek,
+		.release = single_release,
 };

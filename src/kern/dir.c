@@ -171,7 +171,7 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 	pr_debug("saltfs: new inode created\n");
 
 	if (!inode)
-		goto out;
+		return inode;
 
 	inode->i_ino = get_next_ino();
 	inode->i_op = &simple_dir_inode_operations;
@@ -189,10 +189,10 @@ static struct inode *salt_inode_create(struct inode *dir, struct dentry *dentry,
 	}
 	update_current_time(inode);
 
-	pr_debug("saltfs: new inode filled; type=%d, i_ino=%zu, i_mode=%d, i_flags=%ul\n",
+	pr_debug("saltfs: new inode filled; "
+					"type=%d, i_ino=%zu, i_mode=%d, i_flags=%ul\n",
 			type, inode->i_ino, inode->i_mode, inode->i_flags);
 
-out:
 	return inode;
 }
 
@@ -203,7 +203,7 @@ bool salt_fill_cache_item(struct dentry *dir, char const *name, int len,
 	struct qstr qname = QSTR_INIT(name, len);
 	struct inode *inode, *parent_inode = dir->d_inode;
 
-	pr_debug("saltfs: salt_fill_cache_item: name='%s', i_ino: %zu; variables inited\n",
+	pr_debug("saltfs: salt_fill_cache_item: name='%s', i_ino: %zu\n",
 			name, parent_inode->i_ino);
 
 	child = d_hash_and_lookup(dir, &qname);
@@ -229,7 +229,8 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	char *next_item_list_cmd;
 	char *salt_item;
 	struct salt_userspace_output const *salt_output;
-	struct salt_next_item_spec const *next_item = salt_items_spec[type].next_items;
+	struct salt_next_item_spec const *next_item =
+			salt_items_spec[type].next_items;
 	enum salt_dir_entry_type next_item_type;
 
 	if (next_item) {
@@ -252,7 +253,8 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	salt_list(next_item_list_cmd, ino);
 	kfree(next_item_list_cmd);
 
-	salt_output = (struct salt_userspace_output const *)idr_find(&salt_output_idr, ino);
+	salt_output = (struct salt_userspace_output const *)
+			idr_find(&salt_output_idr, ino);
 	for (i = 0; i < salt_output->line_count; i++) {
 		salt_item = salt_output->lines[i];
 		salt_fill_cache_item(dir, salt_item, strlen(salt_item), next_item_type);
@@ -263,7 +265,8 @@ static int salt_readdir(struct file *file, struct dir_context *ctx)
 {
 	struct inode *inode = file->f_inode;
 	struct salt_dir_entry *sde = SDE(inode);
-	enum salt_dir_entry_type next_item_type = salt_items_spec[sde->type].next_item_type;
+	enum salt_dir_entry_type next_item_type =
+			salt_items_spec[sde->type].next_item_type;
 
 #ifdef DEBUG
 	int const path_len = 1024;
@@ -287,16 +290,10 @@ static int salt_readdir(struct file *file, struct dir_context *ctx)
 	return dcache_readdir(file, ctx);
 }
 
-ssize_t salt_read_dir(struct file *filp, char __user *buf, size_t siz, loff_t *ppos)
-{
-	pr_debug("saltfs: read_dir\n");
-	return -EISDIR;
-}
-
 struct file_operations const salt_dir_operations = {
-		.open			= dcache_dir_open,
-		.llseek			= generic_file_llseek,
-		.read			= generic_read_dir,
-		.iterate		= salt_readdir,
+		.open    = dcache_dir_open,
+		.llseek  = generic_file_llseek,
+		.read    = generic_read_dir,
+		.iterate = salt_readdir,
 };
 

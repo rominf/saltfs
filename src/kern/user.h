@@ -4,7 +4,8 @@
 #include <linux/types.h>
 
 #define SALT_LIST_CMD_FULL_MAX_LENGTH 128
-#define SALT_FISH_SET_MINION(minion) "set -g __fish_salt_extracted_minion ", minion, "; and "
+#define SALT_FISH_SET_MINION(minion) \
+		"set -g __fish_salt_extracted_minion ", minion, "; and "
 
 struct salt_userspace_output {
 	char **lines;

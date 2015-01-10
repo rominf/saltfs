@@ -25,8 +25,8 @@ static int salt_result_open(struct inode *inode, struct file *file)
 }
 
 struct file_operations const salt_result_fops = {
-		.open       = salt_result_open,
-		.read       = seq_read,
-		.llseek     = seq_lseek,
-		.release    = single_release,
+		.open    = salt_result_open,
+		.read    = seq_read,
+		.llseek  = seq_lseek,
+		.release = single_release,
 };
