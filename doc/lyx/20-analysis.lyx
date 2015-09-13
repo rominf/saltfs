@@ -1,0 +1,263 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass g7-32_text
+\options utf8x
+\use_default_options false
+\maintain_unincluded_children false
+\language russian
+\language_package default
+\inputencoding auto
+\fontencoding default
+\font_roman CMU Serif
+\font_sans CMU Sans Serif
+\font_typewriter CMU Typewriter Text
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Раздел
+Аналитический раздел
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset label
+LatexCommand label
+name "cha:analysis"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Подраздел
+Метод реализации файловой системы
+\end_layout
+
+\begin_layout Standard
+Существует три основных способа реализации файловой системы Linux 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "robertloveLinkerdev"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Пункт
+Изменение исходного кода ядра
+\end_layout
+
+\begin_layout Standard
+Изменение исходного кода ядра является наиболее затратным по временным ресурсам,
+ поскольку при каждом изменении файловой системы необходимо пересобирать
+ ядро.
+ Также этот вариант не позволяет выпускать новые версии файловой системы
+ чаще, чем новые версии ядра.
+ К тому же файловая система для удалённого управления скорее всего не нужна
+ рядовому пользователю и увеличит и так 
+\begin_inset Quotes fld
+\end_inset
+
+раздутое и огромное
+\begin_inset Quotes frd
+\end_inset
+
+ (Линус Торвальдс, 2009 г.) ядро.
+\end_layout
+
+\begin_layout Пункт
+Создание загружемого модуля ядра
+\end_layout
+
+\begin_layout Standard
+Файловая система оформляется в виде загружаемого модуля ядра, компилируемого
+ в бинарный файл формата kernel object (.ko), который загружается и выгружается
+ командами 
+\family typewriter
+insmod
+\family default
+ и 
+\family typewriter
+rmmod
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+Этот подход позволяет вести разработку быстрее (сборка модуля ядра занимает
+ на порядки меньше времени, чем сборка всего ядра) и не зависеть от выпусков
+ ядра.
+ Недостатком являются ограниченные возможности по доступу к объектам ядра
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "peterjaysalzmanmichaelburianoripomerantzLinKerModProGui"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Пункт
+Использование FUSE
+\end_layout
+
+\begin_layout Standard
+
+\family typewriter
+FUSE
+\family default
+ — загружаемый модуль для Unix-подобных ОС, который позволяет пользователям
+ без привилегий создавать их собственные файловые системы без необходимости
+ переписывать код ядра.
+ Это достигается за счёт запуска кода файловой системы в пространстве пользовате
+ля, в то время как модуль 
+\family typewriter
+FUSE
+\family default
+ только предоставляет мост для актуальных интерфейсов ядра.
+ 
+\family typewriter
+FUSE
+\family default
+ была официально включена в главное дерево кода Linux в версии 2.6.14.
+\end_layout
+
+\begin_layout Standard
+К недостаткам этого подхода относится то, что предоставляя унифицированный
+ интерфейс к созданию файловых систем многих ОС, 
+\family typewriter
+FUSE
+\family default
+ не предоставляет доступа к низкоуровневым объектам реализации слоя файловой
+ системы (VFS в Linux), что сказывается на производительности.
+\end_layout
+
+\begin_layout Пункт
+Выбор метода реализации файловой системы
+\end_layout
+
+\begin_layout Standard
+Управление большим количеством удалённых компьютеров должно производиться
+ максимально быстро.
+ Поэтому было решено отказаться от использования 
+\family typewriter
+FUSE
+\family default
+.
+ Так как доступ к объектам ядра, возможный только из самого ядра, не требовался,
+ было решено реализовать файловую систему в виде модуля ядра.
+\end_layout
+
+\begin_layout Подраздел
+Метод удалённого управления
+\end_layout
+
+\begin_layout Standard
+Программирование в пространстве ядра накладывает существенные ограничения.
+ Использование стандартной библиотеки C и библиотек GNU не представляется
+ возможным, поэтому использование сокетов Беркли для сетевого взаимодействия
+ является трудновыполнимой задачей.
+ Поэтому было принято решение осуществлять сетевое взаимодействие в пространстве
+ пользователя и лишь затем передавать данные в пространство ядра для обработки
+ модулем файловой системы.
+\end_layout
+
+\begin_layout Standard
+Существует большое количество ПО удалённого управления.
+ В связи с этим представляется более разумным не создавать ещё одно ПО для
+ удалённого управления, а приспособить уже имеющееся.
+ Категория ПО, ориентированная на массовое управление серверами, отображение
+ и изменение их конфигурации, называется 
+\begin_inset Quotes fld
+\end_inset
+
+ПО для конфигурационного управления
+\begin_inset Quotes frd
+\end_inset
+
+ (англ.
+ configuration management software).
+ Именно такое ПО отвечает требованиям, поставленным перед файловой системой.
+\end_layout
+
+\begin_layout Standard
+Подробное сравнение свободного ПО для конфигурационного управления проведено
+ в 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "configmanagemencomp"
+
+\end_inset
+
+.
+ В связи со свободной лицензией (Apache), поддержкой большого количества
+ ОС (включая GNU/Linux, OS X и Microsoft Windows), а также скоростью работы,
+ обусловленной использованием сетевой библиотеки ZeroMQ и протокола обмена
+ сообщениями MessagePack, ориентированных на производительность, был выбран
+ SaltStack (сокращённо — Salt).
+ В связи с этим файловой системе было дано название 
+\family typewriter
+saltfs
+\family default
+.
+\end_layout
+
+\end_body
+\end_document

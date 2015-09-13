@@ -1,0 +1,275 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass g7-32_text
+\options utf8x
+\use_default_options false
+\begin_modules
+minted
+local-minted
+\end_modules
+\maintain_unincluded_children false
+\language russian
+\language_package default
+\inputencoding auto
+\fontencoding default
+\font_roman CMU Serif
+\font_sans CMU Sans Serif
+\font_typewriter CMU Typewriter Text
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Раздел
+Технологический раздел
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset label
+LatexCommand label
+name "cha:impl"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Подраздел
+Выбор языка и среды разработки
+\end_layout
+
+\begin_layout Standard
+Ядро предоставляет возможность написания модулей лишь на языке C.
+ Пользовательская часть (скрипт вызова 
+\family typewriter
+salt
+\family default
+, тесты) была написана на языке командной оболочки Fish, поскольку её синтаксис
+ отличается от Bash повышенной читаемостью и простотой сопровождения.
+\end_layout
+
+\begin_layout Standard
+В качестве среды разработки использовалось IDE CLion.
+\end_layout
+
+\begin_layout Подраздел
+Выбор системы виртуализации
+\end_layout
+
+\begin_layout Standard
+В качестве системы виртуализации была выбрана связка VirtualBox + Vagrant.
+ VirtualBox является наиболее популярной пользовательской системой виртуализации
+, а Vagrant позволяет автоматизировать процесс разработки, позволяя свести
+ процесс перезагрузки виртуальной машины и загрузки модуля к запуску заранее
+ написанного скрипта.
+\end_layout
+
+\begin_layout Подраздел
+Выбор дистрибутива GNU/Linux и ядра
+\end_layout
+
+\begin_layout Standard
+В качестве дистрибутива Linux был использован openSUSE 13.2.
+ В качестве ядра было использовано стандартное ядро версии 3.16, идущее в
+ комплекте.
+\end_layout
+
+\begin_layout Подраздел
+Особенности реализации
+\end_layout
+
+\begin_layout Standard
+При разработке многих функций файловой системы использовалась библиотека
+ ядра для разработчиков файловых систем libfs 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "lwn_libfs"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Разработка велась по стандарту кодирования, описанному в документации ядра
+ Linux.
+\end_layout
+
+\begin_layout Standard
+Основным источником документации по созданию файловых систем являются сами
+ исходные коды ядра Linux 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "sources"
+
+\end_inset
+
+.
+ В основном были использованы коды файловых систем 
+\family typewriter
+procfs
+\family default
+, 
+\family typewriter
+logfs
+\family default
+, 
+\family typewriter
+ramfs
+\family default
+.
+ 
+\end_layout
+
+\begin_layout Подраздел
+Получение списка файлов в директории
+\end_layout
+
+\begin_layout Standard
+На рисунке 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "pic:salt_dir_iterate"
+
+\end_inset
+
+ и 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "pic:salt_fill_dir"
+
+\end_inset
+
+ приведена схема алгоритма получения списка файлов в директории.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pic/salt_dir_iterate.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Схема алгоритма получения списка файлов в директории
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "pic:salt_dir_iterate"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pic/salt_fill_dir.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Схема алгоритма получения списка файлов в директории
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "pic:salt_fill_dir"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

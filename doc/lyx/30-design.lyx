@@ -1,0 +1,621 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass g7-32_text
+\begin_preamble
+\usepackage{tikz}
+\end_preamble
+\options utf8x
+\use_default_options false
+\maintain_unincluded_children false
+\language russian
+\language_package default
+\inputencoding auto
+\fontencoding default
+\font_roman CMU Serif
+\font_sans CMU Sans Serif
+\font_typewriter CMU Typewriter Text
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Раздел
+Конструкторский раздел
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset label
+LatexCommand label
+name "cha:design"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Подраздел
+Использование Salt
+\end_layout
+
+\begin_layout Description
+Зёрно
+\begin_inset space ~
+\end_inset
+
+(англ.
+\begin_inset space ~
+\end_inset
+
+grain) статическая информация о компьютере, ОС и конфигурации.
+\end_layout
+
+\begin_layout Description
+Функция действие, которое возможно осуществить над клиентским компьютером.
+ Примеры: 
+\family typewriter
+test.ping
+\family default
+ (проверка наличие миньона в сети), 
+\family typewriter
+system.reboot
+\family default
+ (перезагрузка ОС), 
+\family typewriter
+pkg.install NAME
+\family default
+ (установка пакета из репозитория).
+\end_layout
+
+\begin_layout Description
+Мастер
+\begin_inset space ~
+\end_inset
+
+(англ.
+\begin_inset space ~
+\end_inset
+
+master) серверный компьютер, на котором запущена программа 
+\family typewriter
+salt-master
+\family default
+.
+ Обычно в системе Salt находится один мастер.
+\end_layout
+
+\begin_layout Description
+Миньон (англ. minion) клиентский компьютер, на котором запущена программа
+ 
+\family typewriter
+salt-minion
+\family default
+, управляемый мастером.
+ В системе Salt может находится произвольное количество миньонов (в наиболее
+ крупных системах Salt находятся десятки тысяч миньонов).
+\end_layout
+
+\begin_layout Description
+Модуль группа функций, схожих по смыслу.
+ Примеры: 
+\family typewriter
+test
+\family default
+ (модуль с функциями проверки работы системы Salt), 
+\family typewriter
+system
+\family default
+ (модуль управления питания компьютера и основными параметрами ОС), 
+\family typewriter
+pkg
+\family default
+ (модуль для управления установленным ПО).
+\end_layout
+
+\begin_layout Подраздел
+Иерархия файловой системы
+\end_layout
+
+\begin_layout Standard
+На рисунке 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "pic:hierarchy"
+
+\end_inset
+
+ изображена иерархия файловой системы.
+\end_layout
+
+\begin_layout Пункт
+Первый уровень
+\end_layout
+
+\begin_layout Standard
+На верхнем уровне находятся директории, именованные идентификаторами миньонов.
+\end_layout
+
+\begin_layout Пункт
+Второй уровень
+\end_layout
+
+\begin_layout Standard
+На втором уровне находятся директории, соответствующие модулям.
+ В общем случае, они различны для разных платформ: зависят от установленной
+ ОС (например, модуль 
+\family typewriter
+linux_acl
+\family default
+ для GNU/Linux) и прикладного ПО (модули 
+\family typewriter
+postgres
+\family default
+ и 
+\family typewriter
+mysql
+\family default
+ присутствуют при установленных PostgreSQL и MySQL).
+\end_layout
+
+\begin_layout Пункт
+Третий уровень
+\end_layout
+
+\begin_layout Standard
+На третьем уровне находятся файлы, соответствующие функциям.
+ Для каждой функции определены операции чтения и записи.
+ При чтении происходит выдача документации по заданной функции.
+ Запись параметров функции служит для вызова функции.
+ 
+\end_layout
+
+\begin_layout Standard
+Для управления гранулами в Salt служит модуль 
+\family typewriter
+grains
+\family default
+.
+ Он обрабатывается особым образом.
+ В нём, в отличие от определённых в Salt функций, содержатся файлы, соответствую
+щие гранулам.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pic/hierarchy.pdf
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Иерархия файловой системы
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "pic:hierarchy"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Подраздел
+Устройство файловой системы
+\end_layout
+
+\begin_layout Standard
+Файловая система 
+\family typewriter
+saltfs
+\family default
+ не связана с физическими устройствами хранения файлов и все файлы в ней
+ создаются 
+\begin_inset Quotes fld
+\end_inset
+
+на лету
+\begin_inset Quotes frd
+\end_inset
+
+.
+ Для получения списка директорий, содержимого файлов, вызова функций используетс
+я скрипт командной оболочки 
+\family typewriter
+Fish
+\family default
+, который вызывает программу 
+\family typewriter
+salt
+\family default
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename pic/arch.pdf
+	width 80text%
+
+\end_inset
+
+
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Взаимодействие файловой системы с ПО
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "pic:arch"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Подраздел
+Взаимодействие пространства ядра и пользователя
+\end_layout
+
+\begin_layout Standard
+При выборе механизма взаимодействия модуля ядра 
+\family typewriter
+saltfs
+\family default
+ с Salt использовался список способов взаимодействия 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "compkerneluser"
+
+\end_inset
+
+.
+ Перечислим основные достоинства и недостатки механизмов (применительно
+ к конкретной задачи), рассмотренных в нём.
+\end_layout
+
+\begin_layout Пункт
+procfs
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Простое создание объектов обмена данными.
+\end_layout
+
+\begin_layout Enumerate
+Может служить для обмена произвольным количеством данных.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Считается устаревшим способом взаимодействия.
+\end_layout
+
+\begin_layout Enumerate
+Директория 
+\family typewriter
+/proc
+\family default
+ плохо структурирована.
+\end_layout
+
+\begin_layout Enumerate
+Чтение из пространства пользователя происходит по байтам.
+\end_layout
+
+\begin_layout Пункт
+sysfs
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Хорошее структурирование.
+\end_layout
+
+\begin_layout Enumerate
+Стандартный способ взаимодействие с драйверами устройств.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Фиксированный размер файлов, ограниченный размером страницы 
+\family typewriter
+PAGE_SIZE
+\family default
+ (4096 байт на i386).
+\end_layout
+
+\begin_layout Пункт
+configfs
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Фиксированный размер файлов, ограниченный размером страницы 
+\family typewriter
+PAGE_SIZE
+\family default
+ (4096 байт на i386).
+\end_layout
+
+\begin_layout Enumerate
+Создание объектов происходит из пространства пользователя.
+\end_layout
+
+\begin_layout Пункт
+debugfs
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Простота создания объектов обмена данными.
+\end_layout
+
+\begin_layout Enumerate
+Простота чтения и записи.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+В стандартной поставке ядра Linux данная ФС отключена.
+\end_layout
+
+\begin_layout Пункт
+sysctl
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Используется для настройки параметров ядра во время его работы.
+\end_layout
+
+\begin_layout Enumerate
+Возможна запись только чисел.
+\end_layout
+
+\begin_layout Пункт
+Символьные устройства
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Может служить для обмена произвольным количеством данных.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Пользователь должен создавать устройства самостоятельно.
+\end_layout
+
+\begin_layout Пункт
+Netlink сокеты
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Предоставляют большую гибкость в использовании, чем способы взаимодействия,
+ основанные на файлах.
+\end_layout
+
+\begin_layout Enumerate
+Объекты обмена данными не видны пользователю.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Большая сложность использования, чем у способов взаимодействия, основанных
+ на файлах.
+\end_layout
+
+\begin_layout Enumerate
+Необходимость написания специального приложения для взаимодействия в пространств
+е пользователя.
+\end_layout
+
+\begin_layout Пункт
+Системные вызовы ядра
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Возможность получения текстовой информации в виде строки-аргумента вызова.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Требует модификации ядра.
+\end_layout
+
+\begin_layout Пункт
+Mmap
+\end_layout
+
+\begin_layout Подпункт
+Достоинства
+\end_layout
+
+\begin_layout Enumerate
+Не требует копирования между пространством ядра и пространством пользователя.
+\end_layout
+
+\begin_layout Enumerate
+Может служить для обмена произвольным количеством данных.
+\end_layout
+
+\begin_layout Подпункт
+Недостатки
+\end_layout
+
+\begin_layout Enumerate
+Необходимость в использовании объектов синхронизации для оповещения о поступлени
+и новых данных.
+\end_layout
+
+\begin_layout Enumerate
+Необходимость написания специального приложения для взаимодействия в пространств
+е пользователя.
+\end_layout
+
+\begin_layout Подраздел
+Обоснование выбора
+\end_layout
+
+\begin_layout Standard
+В качестве механизма взаимодействия был выбран обмен данными с помощью 
+\family typewriter
+procfs
+\family default
+ из-за простоты его использования, отсутствии необходимости написания дополнител
+ьного пользовательского приложения и отсутствии недостатков, не позволяющих
+ его использовать.
+\end_layout
+
+\begin_layout Standard
+В качестве способа запуска программы 
+\family typewriter
+salt
+\family default
+ было использовано API usermode_helper 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "usermode_helper"
+
+\end_inset
+
+.
+\end_layout
+
+\end_body
+\end_document

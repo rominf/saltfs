@@ -1,0 +1,482 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass g7-32_text
+\options utf8x
+\use_default_options false
+\begin_modules
+minted
+\end_modules
+\maintain_unincluded_children false
+\language russian
+\language_package default
+\inputencoding auto
+\fontencoding default
+\font_roman CMU Serif
+\font_sans CMU Sans Serif
+\font_typewriter CMU Typewriter Text
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Раздел
+Исходные коды
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+captionsetup{type=listing}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset label
+LatexCommand label
+name "cha:appendix_code"
+
+\end_inset
+
+
+\end_layout
+
+# begin dir.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/dir.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{dir.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end dir.c
+
+# begin dir.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/dir.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{dir.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end dir.h
+
+# begin file.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/file.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{file.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end file.c
+
+# begin file.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/file.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{file.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end file.h
+
+# begin function.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/function.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{function.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end function.c
+
+# begin function.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/function.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{function.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end function.h
+
+# begin grain.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/grain.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{grain.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end grain.c
+
+# begin grain.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/grain.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{grain.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end grain.h
+
+# begin inode.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/inode.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{inode.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end inode.c
+
+# begin internal.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/internal.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{internal.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end internal.h
+
+# begin result.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/result.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{result.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end result.c
+
+# begin result.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/result.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{result.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end result.h
+
+# begin string.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/string.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{string.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end string.c
+
+# begin string.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/string.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{string.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end string.h
+
+# begin super.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/super.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{super.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end super.c
+
+# begin user.c
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/user.c
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{user.c}
+
+\end_layout
+\end_inset
+\end_layout
+# end user.c
+
+# begin user.h
+\begin_layout Standard
+\begin_inset External
+	template MintedSource
+	filename ../../src/kern/user.h
+	extra LaTeX "linenos,frame=single,style=bw,fontsize=\footnotesize,tabsize=4,lang=c"
+\end_inset
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+\begin_layout Plain Layout
+
+\backslash
+caption{user.h}
+
+\end_layout
+\end_inset
+\end_layout
+# end user.h
+
+
+\end_body
+\end_document

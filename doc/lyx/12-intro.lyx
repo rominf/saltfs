@@ -1,0 +1,215 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass g7-32_text
+\options utf8x
+\use_default_options false
+\maintain_unincluded_children false
+\language russian
+\language_package default
+\inputencoding auto
+\fontencoding default
+\font_roman CMU Serif
+\font_sans CMU Sans Serif
+\font_typewriter CMU Typewriter Text
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts true
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 0
+\use_package cancel 0
+\use_package esint 1
+\use_package mathdots 0
+\use_package mathtools 0
+\use_package mhchem 0
+\use_package stackrel 0
+\use_package stmaryrd 0
+\use_package undertilde 0
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language french
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Введение
+
+\end_layout
+
+\begin_layout Standard
+Одним из базовых принципов Unix гласит: 
+\begin_inset Quotes fld
+\end_inset
+
+Всё является файлом
+\begin_inset Quotes frd
+\end_inset
+
+.
+ Сейчас «всё» действительно означает всё.
+ Каталог, жесткий диск, раздел на жестком диске, параллельный порт, подключение
+ к веб-сайту, карта Ethernet — всё это файлы.
+ Linux, унаследовавший этот и многие другие принципы Unix, различает много
+ типов файлов в дополнение к стандартным файлам и каталогам.
+\end_layout
+
+\begin_layout Standard
+В ядре Linux помимо дисковых файловых систем (наиболее используемыми из
+ которых являются 
+\family typewriter
+btrfs
+\family default
+, 
+\family typewriter
+ext3
+\family default
+, 
+\family typewriter
+ext4
+\family default
+, 
+\family typewriter
+ReiserFS
+\family default
+, 
+\family typewriter
+XFS
+\family default
+) присутствуют также системы, предоставляющие доступ к ресурсам компьютера,
+ отличным от данных на жёстком диске.
+ 
+\family typewriter
+procfs
+\family default
+ позволяет получить доступ к информации о системных процессах из ядра (она
+ необходима для выполнения таких команд как 
+\family typewriter
+ps
+\family default
+, 
+\family typewriter
+w
+\family default
+, 
+\family typewriter
+top
+\family default
+), 
+\family typewriter
+sysfs
+\family default
+ экспортирует в пространство пользователя информацию ядра Linux о присутствующих
+ в системе устройствах и драйверах, 
+\family typewriter
+ramfs
+\family default
+ используется для создания RAM-диска в процессе загрузки системы, 
+\family typewriter
+tmpfs
+\family default
+ поддерживает работу с виртуальной памятью.
+ Для Linux также существуют сетевые системы: 
+\family typewriter
+SMB
+\family default
+ (реализующая поддержку 
+\begin_inset Quotes fld
+\end_inset
+
+общих папок Windows
+\begin_inset Quotes frd
+\end_inset
+
+), 
+\family typewriter
+NFS
+\family default
+ (популярный в Unix-подобных системах протокол сетевого доступа к файловым
+ системам), а также кластерные системы 
+\family typewriter
+Lustre
+\family default
+, 
+\family typewriter
+Cerp
+\family default
+, 
+\family typewriter
+GlusterFS
+\family default
+ и другие.
+ Реализованы также системы для обеспечения абстракции над сетевыми ресурсами:
+ 
+\family typewriter
+sshfs
+\family default
+ (доступ к файлам по протоколу 
+\family typewriter
+SSH
+\family default
+), 
+\family typewriter
+ftpfs
+\family default
+ (доступ к файлам по протоколу 
+\family typewriter
+FTP
+\family default
+).
+\end_layout
+
+\begin_layout Standard
+Не существует широко известных файловых систем для просмотра информации
+ и удалённого управления компьютерами.
+ В связи с этим было решено расширить принцип 
+\begin_inset Quotes fld
+\end_inset
+
+всё есть файл
+\begin_inset Quotes frd
+\end_inset
+
+, создав файловую систему, в которой файлами являлись бы параметры удалённых
+ компьютеров и действия над ними.
+\end_layout
+
+\end_body
+\end_document

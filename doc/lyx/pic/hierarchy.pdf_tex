@@ -1,0 +1,75 @@
+%% Creator: Inkscape inkscape 0.48.5, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'hierarchy.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{426.4bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.26641651)%
+    \put(0,0){\includegraphics[width=\unitlength]{hierarchy.pdf}}%
+    \put(0.02558349,0.62306192){\makebox(0,0)[lb]{\smash{salt}}}%
+    \put(0.22445779,0.02180863){\makebox(0,0)[lb]{\smash{minionN}}}%
+    \put(0.22445779,0.09685554){\makebox(0,0)[lb]{\smash{...}}}%
+    \put(0.220803,0.17190244){\makebox(0,0)[lb]{\smash{minion1}}}%
+    \put(0.220803,0.73475422){\makebox(0,0)[lb]{\smash{minion0}}}%
+    \put(0.5040075,0.24694934){\makebox(0,0)[lb]{\smash{moduleM}}}%
+    \put(0.5040075,0.32199625){\makebox(0,0)[lb]{\smash{...}}}%
+    \put(0.5040075,0.39704315){\makebox(0,0)[lb]{\smash{module1}}}%
+    \put(0.5040075,0.58466041){\makebox(0,0)[lb]{\smash{module0}}}%
+    \put(0.79491182,0.47209006){\makebox(0,0)[lb]{\smash{functionF}}}%
+    \put(0.7985666,0.54713696){\makebox(0,0)[lb]{\smash{...}}}%
+    \put(0.79491182,0.62218387){\makebox(0,0)[lb]{\smash{function1}}}%
+    \put(0.79491182,0.69723077){\makebox(0,0)[lb]{\smash{function0}}}%
+    \put(0.5040075,0.99741839){\makebox(0,0)[lb]{\smash{grains}}}%
+    \put(0.74425516,0.77227767){\makebox(0,0)[lb]{\smash{virtual}}}%
+    \put(0.74790994,0.84732458){\makebox(0,0)[lb]{\smash{...}}}%
+    \put(0.74425516,0.92237148){\makebox(0,0)[lb]{\smash{fqdn}}}%
+    \put(0.74425516,0.99741839){\makebox(0,0)[lb]{\smash{domain}}}%
+    \put(0.74425516,1.07246529){\makebox(0,0)[lb]{\smash{cpu_model}}}%
+    \put(0.74425516,1.1475122){\makebox(0,0)[lb]{\smash{cpu_flags}}}%
+    \put(0.74425516,1.2225591){\makebox(0,0)[lb]{\smash{cpuarch}}}%
+  \end{picture}%
+\endgroup%
