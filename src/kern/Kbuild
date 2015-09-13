@@ -2,4 +2,4 @@ obj-m := saltfs.o
 saltfs-objs := dir.o file.o grain.o function.o inode.o result.o string.o \
                super.o user.o
 
-ccflags-y += -DDEBUG
+#ccflags-y += -DDEBUG

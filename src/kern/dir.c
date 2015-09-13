@@ -261,7 +261,7 @@ void salt_fill_dir(struct salt_dir_entry *sde, struct dentry *dir, int const ino
 	}
 }
 
-static int salt_readdir(struct file *file, struct dir_context *ctx)
+static int salt_dir_iterate(struct file *file, struct dir_context *ctx)
 {
 	struct inode *inode = file->f_inode;
 	struct salt_dir_entry *sde = SDE(inode);
@@ -281,6 +281,7 @@ static int salt_readdir(struct file *file, struct dir_context *ctx)
 	pr_debug("saltfs: salt_readdir: next_item: name='%s', type=%d\n",
 			salt_items_spec[next_item_type].name, next_item_type);
 
+	/* Need to make more intelligent cache invalidation */
 	if (CURRENT_TIME.tv_sec - inode->i_atime.tv_sec > refresh_delay) {
 		pr_debug("saltfs: salt_readdir: cache invalidation\n");
 		inode->i_atime = CURRENT_TIME;
@@ -294,6 +295,6 @@ struct file_operations const salt_dir_operations = {
 		.open    = dcache_dir_open,
 		.llseek  = generic_file_llseek,
 		.read    = generic_read_dir,
-		.iterate = salt_readdir,
+		.iterate = salt_dir_iterate,
 };
 
